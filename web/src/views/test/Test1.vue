@@ -13,10 +13,13 @@
       <a-button type="dashed">Dashed</a-button>
       <a-button type="link">Link</a-button>
     </a-space>
+    <a-button v-if="$auth('/test/test1.delete')">$auth</a-button>
+    <a-button v-action:delete>action</a-button>
   </div>
 </template>
   <script>
   export default {
+    name: 'Test1',
     data () {
       return {
         size: 'small'

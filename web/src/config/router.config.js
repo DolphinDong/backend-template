@@ -267,22 +267,22 @@ export const asyncRouterMap = [
             ]
           }
         ]
-      },
-      {
-        path: '/test',
-        component: RouteView,
-        redirect: '/test/table',
-        name: 'account',
-        meta: { title: '测试', icon: 'user', keepAlive: true },
-        children: [
-          {
-            path: '/test/table',
-            name: 'testTable',
-            component: () => import('@/views/test/table/Table'),
-            meta: { title: '测试表格', keepAlive: true }
-          }
-        ]
       }
+      // {
+      //   path: '/test',
+      //   component: RouteView,
+      //   redirect: '/test/table',
+      //   name: 'account',
+      //   meta: { title: '测试', icon: 'user', keepAlive: true },
+      //   children: [
+      //     {
+      //       path: '/test/table',
+      //       name: 'testTable',
+      //       component: () => import('@/views/test/table/Table'),
+      //       meta: { title: '测试表格', keepAlive: true }
+      //     }
+      //   ]
+      // }
 
       // other
       /*

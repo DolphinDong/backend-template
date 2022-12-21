@@ -461,6 +461,43 @@ const info = options => {
     dataAccess: null
   })
 
+  roleObj.permissions.push({
+    roleId: 'admin',
+    permissionId: '/test/test1',
+    permissionName: '测试模块',
+    actions:
+      '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"import","defaultCheck":false,"describe":"导入"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"delete","defaultCheck":false,"describe":"删除"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"export","defaultCheck":false,"describe":"导出"}]',
+    actionEntitySet: [
+      {
+        action: 'add',
+        describe: '新增',
+        defaultCheck: false
+      },
+      {
+        action: 'import',
+        describe: '导入',
+        defaultCheck: false
+      },
+      {
+        action: 'get',
+        describe: '详情',
+        defaultCheck: false
+      },
+      {
+        action: 'update',
+        describe: '修改',
+        defaultCheck: false
+      },
+      {
+        action: 'export',
+        describe: '导出',
+        defaultCheck: false
+      }
+    ],
+    actionList: null,
+    dataAccess: null
+  })
+
   userInfo.role = roleObj
   return builder(userInfo)
 }
@@ -715,7 +752,6 @@ const userNav = options => {
       },
       component: 'ResultFail'
     },
-
     // Exception
     {
       name: 'exception',
@@ -851,6 +887,30 @@ const userNav = options => {
         show: false
       },
       component: 'NotificationSettings'
+    },
+    {
+      name: 'test',
+      parentId: 0,
+      id: 10086,
+      meta: {
+        title: '测试',
+        icon: 'warning',
+        show: true
+      },
+      redirect: '/test/test1',
+      component: 'RouteView'
+    },
+    {
+      name: 'test1',
+      parentId: 10086,
+      id: 10087,
+      component: 'test/Test1',
+      permission: '/test/test1',
+      meta: {
+        title: '测试1',
+        icon: 'warning',
+        show: true
+      }
     }
   ]
   const json = builder(nav)
