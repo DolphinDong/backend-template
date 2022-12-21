@@ -20,6 +20,14 @@ func ResponseHttpErrorWithMsg(ctx *gin.Context, msg string) {
 	})
 }
 
+func ResponseHttpForbiddenWithMsg(ctx *gin.Context, msg string) {
+	ctx.JSON(http.StatusForbidden, &Response{
+		Code: ResponseForbiddenMsg,
+		Msg:  msg,
+		Data: nil,
+	})
+}
+
 func ResponseHttpBadRequestWithMsg(ctx *gin.Context, msg string) {
 	ctx.JSON(http.StatusBadRequest, &Response{
 		Code: ResponseErrorMsg,

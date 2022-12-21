@@ -12,4 +12,5 @@ const (
 
 const (
 	ResponseBadRequestMsg = 40001 //
+	ResponseForbiddenMsg  = 40003
 )

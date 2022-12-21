@@ -32,8 +32,10 @@ e = some(where (p.eft == allow))
 
 [matchers]
 m = g(r.sub, p.sub) && r.obj == p.obj && method_match(r.act , p.act)
+m = g(r.sub, p.sub) && keyMatch1(r.obj , p.obj) && method_match(r.act , p.act)
 m = g(r.sub, p.sub) && keyMatch2(r.obj , p.obj) && method_match(r.act , p.act)
-m = g(r.sub, p.sub) && keyMatch(r.obj , p.obj) && method_match(r.act , p.act)
+m = g(r.sub, p.sub) && keyMatch3(r.obj , p.obj) && method_match(r.act , p.act)
+m = g(r.sub, p.sub) && keyMatch4(r.obj , p.obj) && method_match(r.act , p.act)
 `)
 	if err != nil {
 		global.Logger.Fatalf("error: model: %+v", err)
@@ -62,23 +64,5 @@ func requestMethodMatchFunc(args ...interface{}) (interface{}, error) {
 // key2 数据库中的权限
 func requestMethodMatch(key1 string, key2 string) bool {
 	// 不区分大小写
-	key1 = strings.ToUpper(key1)
-	key2 = strings.ToUpper(key2)
-
-	var MethodMap = map[string]int{
-		"GET":  1,
-		"POST": 2,
-	}
-
-	key1Num := MethodMap[key1]
-	key2Num := MethodMap[key2]
-	if key1Num != 0 { // 说明请求方法为 GET 或 POST
-		if key2Num >= key1Num { // 如果数据库中的权限 >= 请求的权限则直接返回true
-			return true
-		} else {
-			return false
-		}
-	} else { // 如果验证方式不是通过请求方式则就按照正常的比较即可
-		return key1 == key2
-	}
+	return strings.ToUpper(key1) == strings.ToUpper(key2)
 }

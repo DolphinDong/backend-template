@@ -35,8 +35,9 @@ func registerMiddleware(engine *gin.Engine) {
 	engine.Use(middleware.Recover())
 	// 登录检测
 	//engine.Use(middleware.LoginCheck())
+
 	// 打印请求信息
 	engine.Use(middleware.PrintRequestInfo())
 	// 权限检测
-	//engine.Use(middleware.PermissionCheck())
+	engine.Use(middleware.PermissionCheck())
 }

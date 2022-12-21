@@ -35,6 +35,6 @@ func Init() {
 	// 数据迁移
 	Migrate()
 	// 初始化casbin
-	// InitCasbin()
+	InitCasbin()
 	Logger.Info("server init success!!!")
 }
