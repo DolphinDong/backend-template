@@ -20,7 +20,7 @@ func NewMenuController() *MenuController {
 func (mc *MenuController) GetUserMenu(ctx *gin.Context) {
 	menu, err := mc.MenuService.GetUserMenu("liudong")
 	if err != nil {
-		global.Logger.Error(errors.WithMessage(err, "query menu failed:"))
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "query menu failed:"))
 		response.ResponseErrorCodeWithMsg(ctx, err.Error())
 		return
 	}

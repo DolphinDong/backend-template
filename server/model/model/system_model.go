@@ -13,7 +13,7 @@ type SystemMenu struct {
 	Permission []string  `json:"permission" gorm:"-"` // 改菜单下对应的API权限
 	Sort       int       `json:"sort" gorm:"size:11;comment:菜单排序"`
 	Meta       *MenuMeta `json:"meta" gorm:"-"`
-	gorm.Model
+	gorm.Model `json:"-"`
 }
 type MenuMeta struct {
 	ID                  int    `json:"id" gorm:"primaryKey;autoIncrement"`
@@ -24,7 +24,7 @@ type MenuMeta struct {
 	Show                bool   `json:"show" gorm:"default:true"`
 	HideChildren        bool   `json:"hideChildren" gorm:""`
 	HiddenHeaderContent bool   `json:"hiddenHeaderContent" gorm:""`
-	gorm.Model
+	gorm.Model          `json:"-"`
 }
 type Permission struct {
 	ID           int    `json:"id" gorm:"primaryKey;autoIncrement"`
@@ -33,5 +33,5 @@ type Permission struct {
 	Identify     string `json:"identify" gorm:"not null;size:255;uniqueIndex:identify_action;comment:权限标识"`
 	Action       string `json:"action" gorm:"not null;size:50;uniqueIndex:identify_action;comment:动作"`
 	DefaultCheck bool   `json:"defaultCheck" gorm:"-"`
-	gorm.Model
+	gorm.Model   `json:"-"`
 }
