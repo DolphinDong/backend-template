@@ -2,6 +2,7 @@ import axios from 'axios'
 import store from '@/store'
 import storage from 'store'
 import notification from 'ant-design-vue/es/notification'
+import { message } from 'ant-design-vue'
 import { VueAxios } from './axios'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
 
@@ -20,7 +21,7 @@ const errorHandler = (error) => {
     const token = storage.get(ACCESS_TOKEN)
     if (error.response.status === 403) {
       notification.error({
-        message: 'Forbidden',
+        message: '403 Forbidden',
         description: data.message
       })
     }
@@ -37,6 +38,11 @@ const errorHandler = (error) => {
         })
       }
     }
+  } else {
+    notification.error({
+      message: 'Error',
+      description: 'Unknown Error'
+    })
   }
   return Promise.reject(error)
 }
@@ -54,6 +60,9 @@ request.interceptors.request.use(config => {
 
 // response interceptor
 request.interceptors.response.use((response) => {
+  if (response.data && response.data.msg) {
+    message.error(response.data.msg)
+  }
   return response.data
 }, errorHandler)
 
