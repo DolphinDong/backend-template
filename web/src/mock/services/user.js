@@ -492,6 +492,11 @@ const info = options => {
         action: 'export',
         describe: '导出',
         defaultCheck: false
+      },
+      {
+        action: 'delete',
+        describe: '删除',
+        defaultCheck: false
       }
     ],
     actionList: null,
@@ -833,6 +838,7 @@ const userNav = options => {
       redirect: '/account/settings/basic',
       component: 'AccountSettings'
     },
+
     {
       name: 'BasicSettings',
       path: '/account/settings/basic',
@@ -844,6 +850,7 @@ const userNav = options => {
       },
       component: 'BasicSetting'
     },
+
     {
       name: 'SecuritySettings',
       path: '/account/settings/security',
@@ -855,6 +862,7 @@ const userNav = options => {
       },
       component: 'SecuritySettings'
     },
+
     {
       name: 'CustomSettings',
       path: '/account/settings/custom',
@@ -866,6 +874,7 @@ const userNav = options => {
       },
       component: 'CustomSettings'
     },
+
     {
       name: 'BindingSettings',
       path: '/account/settings/binding',
@@ -877,6 +886,7 @@ const userNav = options => {
       },
       component: 'BindingSettings'
     },
+
     {
       name: 'NotificationSettings',
       path: '/account/settings/notification',
@@ -905,7 +915,7 @@ const userNav = options => {
       parentId: 10086,
       id: 10087,
       component: 'test/Test1',
-      permission: '/test/test1',
+      permission: ['/test/test1', 'a'],
       meta: {
         title: '测试1',
         icon: 'warning',

@@ -20,15 +20,23 @@ const action = Vue.directive('action', {
     const roles = store.getters.roles
     const elVal = vnode.context.$route.meta.permission
     const permissionId = Object.prototype.toString.call(elVal) === '[object String]' && [elVal] || elVal
+    let isFind = false
+    console.log('permissionId', permissionId)
     roles.permissions.forEach(p => {
-      console.log('p.permissionId', p.permissionId)
+      console.log('p', p)
       if (!permissionId.includes(p.permissionId)) {
         return
       }
+      isFind = true
+
       if (p.actionList && !p.actionList.includes(actionName)) {
         el.parentNode && el.parentNode.removeChild(el) || (el.style.display = 'none')
       }
     })
+    // 如果在用户的信息中没有找到该权限则需要将该元素移除
+    if (!isFind) {
+      el.parentNode && el.parentNode.removeChild(el) || (el.style.display = 'none')
+    }
   }
 })
 

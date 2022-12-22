@@ -2,7 +2,7 @@ package initialize
 
 import (
 	"github.com/DolphinDong/backend-template/global"
-	model2 "github.com/DolphinDong/backend-template/model"
+	model3 "github.com/DolphinDong/backend-template/model/model"
 	"strings"
 
 	"github.com/casbin/casbin/v2"
@@ -13,7 +13,7 @@ import (
 // 初始化casbin
 func InitCasbin() {
 	global.Logger.Info("start init casbin .....")
-	adapter, err := gormadapter.NewAdapterByDBWithCustomTable(global.DB, &model2.CasbinRule{})
+	adapter, err := gormadapter.NewAdapterByDBWithCustomTable(global.DB, &model3.CasbinRule{})
 	if err != nil {
 		global.Logger.Errorf("create casbin adapter error: %+v", err)
 	}

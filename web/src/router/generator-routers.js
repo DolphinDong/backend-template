@@ -90,9 +90,10 @@ export const generatorDynamicRouter = token => {
       .getCurrentUserNav(token)
       .then(res => {
         console.log('generatorDynamicRouter response:', res)
-        const { result } = res
+        const result = res.data || res.result
         const menuNav = []
         const childrenNav = []
+        console.log(result)
         //      后端数据, 根级树数组,  根级 PID
         listToTree(result, childrenNav, 0)
         rootRouter.children = childrenNav
