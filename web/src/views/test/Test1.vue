@@ -14,7 +14,7 @@
       <a-button type="link">Link</a-button>
     </a-space>
     <a-button v-if="$auth('/test/test1.delete')">$auth</a-button>
-    <a-button v-action:delete>action</a-button>
+    <a-button v-action:delete>v-action</a-button>
   </div>
 </template>
   <script>

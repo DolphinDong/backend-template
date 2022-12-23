@@ -55,7 +55,7 @@ func (ms *MenuService) GetUserMenu(userId string) (menus []*model2.SystemMenu, e
 		permissions = append(permissions, m1.Name)
 		for _, menu := range menuAndPermissions {
 			if menu.Action != "" && menu.Identify != "" {
-				permissions = append(permissions, menu.Path)
+				permissions = append(permissions, menu.Identify)
 			}
 		}
 		// 权限去重

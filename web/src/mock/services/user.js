@@ -492,7 +492,18 @@ const info = options => {
         action: 'export',
         describe: '导出',
         defaultCheck: false
-      },
+      }
+    ],
+    actionList: null,
+    dataAccess: null
+  })
+  roleObj.permissions.push({
+    roleId: 'admin',
+    permissionId: '/test/test2',
+    permissionName: '测试模块2',
+    actions:
+      '[{"action":"add","defaultCheck":false,"describe":"新增"},{"action":"import","defaultCheck":false,"describe":"导入"},{"action":"get","defaultCheck":false,"describe":"详情"},{"action":"delete","defaultCheck":false,"describe":"删除"},{"action":"update","defaultCheck":false,"describe":"修改"},{"action":"export","defaultCheck":false,"describe":"导出"}]',
+    actionEntitySet: [
       {
         action: 'delete',
         describe: '删除',
