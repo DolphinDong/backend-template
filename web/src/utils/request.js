@@ -22,9 +22,16 @@ const errorHandler = (error) => {
     if (error.response.status === 403) {
       notification.error({
         message: '403 Forbidden',
-        description: data.message
+        description: data.msg
       })
+      return
     }
+
+    if (error.response.status === 400 || (error.response.status === 500 && data.code === 50001)) {
+      message.error(data.msg)
+      return
+    }
+
     if (error.response.status === 401 && !(data.result && data.result.isLogin)) {
       notification.error({
         message: 'Unauthorized',
@@ -37,6 +44,18 @@ const errorHandler = (error) => {
           }, 1500)
         })
       }
+      return
+    }
+    if (error.response.data && error.response.data.msg) {
+      notification.error({
+        message: 'Error',
+        description: data.msg
+      })
+    } else {
+      notification.error({
+        message: 'Error',
+        description: 'Unknown Error'
+      })
     }
   } else {
     notification.error({
@@ -44,7 +63,7 @@ const errorHandler = (error) => {
       description: 'Unknown Error'
     })
   }
-  return Promise.reject(error)
+  // return Promise.reject(error)
 }
 
 // request interceptor
@@ -60,9 +79,10 @@ request.interceptors.request.use(config => {
 
 // response interceptor
 request.interceptors.response.use((response) => {
-  if (response.data && response.data.msg) {
-    message.error(response.data.msg)
+  if (response.data && response.data.msg && response.data.code === 20003) {
+    message.warning(response.data.msg)
   }
+
   return response.data
 }, errorHandler)
 

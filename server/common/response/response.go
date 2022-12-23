@@ -12,10 +12,33 @@ type Response struct {
 	Data interface{} `json:"data"`
 }
 
-func ResponseHttpErrorWithMsg(ctx *gin.Context, msg string) {
+func ResponseOkCodeWithMsgAndData(ctx *gin.Context, code int, msg string, data interface{}) {
+	ctx.JSON(http.StatusOK, &Response{
+		Code: code,
+		Msg:  msg,
+		Data: data,
+	})
+}
+
+func ResponseWithHttpCodeMsgAndData(ctx *gin.Context, httpCode, code int, msg string, data interface{}) {
+	ctx.JSON(httpCode, &Response{
+		Code: code,
+		Msg:  msg,
+		Data: data,
+	})
+}
+
+func ResponseHttpError(ctx *gin.Context, msg string) {
+	ctx.JSON(http.StatusInternalServerError, &Response{
+		Code: ResponseError,
+		Msg:  msg,
+		Data: nil,
+	})
+}
+func ResponseHttpErrorWithInfo(ctx *gin.Context, info string) {
 	ctx.JSON(http.StatusInternalServerError, &Response{
 		Code: ResponseErrorMsg,
-		Msg:  msg,
+		Msg:  info,
 		Data: nil,
 	})
 }
@@ -28,30 +51,14 @@ func ResponseHttpForbiddenWithMsg(ctx *gin.Context, msg string) {
 	})
 }
 
-func ResponseHttpBadRequestWithMsg(ctx *gin.Context, msg string) {
-	ctx.JSON(http.StatusBadRequest, &Response{
-		Code: ResponseErrorMsg,
-		Msg:  msg,
-		Data: nil,
-	})
+// http 400 返回bad request msg
+func ResponseBadRequestWithMsg(ctx *gin.Context, msg string) {
+	ResponseWithHttpCodeMsgAndData(ctx, http.StatusBadRequest, ResponseBadRequestMsg, msg, nil)
 }
 
-func ResponseOkCodeWithMsgAndData(ctx *gin.Context, code int, msg string, data interface{}) {
-	ctx.JSON(http.StatusOK, &Response{
-		Code: code,
-		Msg:  msg,
-		Data: data,
-	})
-}
-
-// http 200  返回错误的msg
-func ResponseErrorCodeWithMsg(ctx *gin.Context, msg string) {
-	ResponseOkCodeWithMsgAndData(ctx, ResponseErrorMsg, msg, nil)
-}
-
-// http 200 返回bad request msg
-func ResponseBadRequestCodeWithMsg(ctx *gin.Context, msg string) {
-	ResponseOkCodeWithMsgAndData(ctx, ResponseBadRequestMsg, msg, nil)
+// http 200  返回警告的msg
+func ResponseOKCodeWithWarningMessage(ctx *gin.Context, msg string) {
+	ResponseOkCodeWithMsgAndData(ctx, ResponseOkWarning, msg, nil)
 }
 
 // 返回msg 和 data

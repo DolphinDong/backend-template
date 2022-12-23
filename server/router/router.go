@@ -12,14 +12,25 @@ func registerRouter(engine *gin.Engine) {
 	api := engine.Group("/api")
 
 	{
-		menuController := system.NewMenuController()
 		systemApi := api.Group("/system")
-		systemApi.GET("/menu", menuController.GetUserMenu)
+		{
+			menuController := system.NewMenuController()
+			systemApi.GET("/menu", menuController.GetUserMenu)
+
+			userController := system.NewUserController()
+			systemApi.GET("/user", userController.GetUserInfo)
+		}
 
 	}
 
-	api.GET("/test", func(ctx *gin.Context) {
-		response.ResponseOkWithMessage(ctx, "hello backend-template!!!!")
+	api.GET("/test1", func(ctx *gin.Context) {
+		response.ResponseHttpErrorWithInfo(ctx, "错误提示")
+	})
+	api.GET("/test2", func(ctx *gin.Context) {
+		response.ResponseHttpError(ctx, "错误")
+	})
+	api.GET("/test3", func(ctx *gin.Context) {
+		response.ResponseOKCodeWithWarningMessage(ctx, "警告")
 	})
 
 	api.GET("/get-permission", func(ctx *gin.Context) {

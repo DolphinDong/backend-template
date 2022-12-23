@@ -16,17 +16,20 @@ type CasbinRule struct {
 }
 
 type User struct {
-	ID            uint   `gorm:"primaryKey;autoIncrement" json:"id"`
-	UserId        string `gorm:"size:50;not null;comment:用户ID;unique" json:"user_id"`
-	Username      string `gorm:"size:255;comment:用户名" json:"username"`
-	Gender        string `gorm:"size:5;comment:性别" json:"gender"`
-	PhoneNumber   string `gorm:"size:11;not null;comment:手机号码;unique" json:"phone_number"`
-	Password      string `gorm:"size:255;not null;comment:密码" json:"password"`
-	Email         string `gorm:"size:255;comment:邮箱" json:"email"`
+	ID            string `gorm:"primaryKey;size:50" json:"id" `
+	LoginName     string `gorm:"size:50;not null;comment:用户ID;unique" json:"login_name" validate:"min=5,max=30,required"`
+	Username      string `gorm:"size:255;not null;comment:用户名" json:"username" validate:"required"`
+	Gender        int    `gorm:"size:5;comment:性别" json:"gender" validate:"required"`
+	Avatar        string `gorm:"size:255;comment:头像地址" json:"avatar"`
+	PhoneNumber   string `gorm:"size:11;not null;comment:手机号码;unique" json:"phone_number" validate:"len=11,required"`
+	Password      string `gorm:"size:255;not null;comment:密码" json:"-"`
+	Email         string `gorm:"size:50;not null;comment:邮箱" json:"email" validate:"email,required"`
 	IsAdmin       bool   `gorm:"comment:是否是超级管理员;default:false" json:"is_admin"`
 	LastLoginTime int    `gorm:"comment:上次登录时间;" json:"last_login_time"`
 	LastLoginIp   int    `gorm:"comment:上次登录Ip;" json:"last_login_ip"`
-	gorm.Model
+	Role          map[string]interface {
+	} `gorm:"-" json:"role"`
+	gorm.Model `json:"-"`
 }
 
 // 角色表

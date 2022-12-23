@@ -18,10 +18,11 @@ func NewMenuController() *MenuController {
 	}
 }
 func (mc *MenuController) GetUserMenu(ctx *gin.Context) {
-	menu, err := mc.MenuService.GetUserMenu("liudong")
+	//menu, err := mc.MenuService.GetUserMenu("user02")
+	menu, err := mc.MenuService.GetUserMenu("efa07b65-ff48-4409-8ae1-6d8aec0f9475")
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "query menu failed:"))
-		response.ResponseErrorCodeWithMsg(ctx, err.Error())
+		response.ResponseHttpError(ctx, "获取用户菜单失败")
 		return
 	}
 	response.ResponseOkWithData(ctx, menu)

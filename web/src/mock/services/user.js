@@ -492,6 +492,11 @@ const info = options => {
         action: 'export',
         describe: '导出',
         defaultCheck: false
+      },
+      {
+        action: 'delete',
+        describe: '删除',
+        defaultCheck: false
       }
     ],
     actionList: null,

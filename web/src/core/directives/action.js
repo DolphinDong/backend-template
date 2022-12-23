@@ -19,16 +19,20 @@ const action = Vue.directive('action', {
     const actionName = binding.arg
     const roles = store.getters.roles
     const elVal = vnode.context.$route.meta.permission
+    // console.log('root permission', elVal)
+    // 当前页面所在路由的 meta.permission
     const permissionId = Object.prototype.toString.call(elVal) === '[object String]' && [elVal] || elVal
     let isFind = false
     console.log('permissionId', permissionId)
+    // 遍历用户拥有的所有的权限
     roles.permissions.forEach(p => {
-      console.log('p', p)
+      // 先找到对应的权限
       if (!permissionId.includes(p.permissionId)) {
         return
       }
       isFind = true
-
+      // console.log('p', p)
+      // 再查看用户该权限中的actions 是否包含传入的action，如果没有则移除当前元素
       if (p.actionList && !p.actionList.includes(actionName)) {
         el.parentNode && el.parentNode.removeChild(el) || (el.style.display = 'none')
       }

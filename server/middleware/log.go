@@ -20,7 +20,7 @@ func PrintRequestInfo() gin.HandlerFunc {
 		if ctx.Request.Method == http.MethodPost {
 			all, err := ioutil.ReadAll(ctx.Request.Body)
 			if err != nil {
-				response.ResponseHttpErrorWithMsg(ctx, "read request body error")
+				response.ResponseHttpError(ctx, "read request body error")
 				global.Logger.Error("read request body error")
 				ctx.Abort()
 				return

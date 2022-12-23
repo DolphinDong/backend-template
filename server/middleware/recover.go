@@ -13,7 +13,7 @@ func Recover() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		defer func() {
 			if err := recover(); err != nil {
-				response.ResponseHttpErrorWithMsg(ctx, "Internal Server Error: "+fmt.Sprintf("%v", err))
+				response.ResponseHttpError(ctx, "Internal Server Error: "+fmt.Sprintf("%v", err))
 				if err2, ok := err.(error); ok {
 					global.Logger.Errorf("%+v", errors.WithStack(err2))
 				} else {
