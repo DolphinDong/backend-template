@@ -1,21 +1,7 @@
 import request from '@/utils/request'
+import APIS from './url.js'
 
-const userApi = {
-  Login: '/auth/login',
-  Logout: '/auth/logout',
-  ForgePassword: '/auth/forge-password',
-  Register: '/auth/register',
-  twoStepCode: '/auth/2step-code',
-  SendSms: '/account/sms',
-  SendSmsErr: '/account/sms_err',
-  // get my info
-  // UserInfo: '/user/info',
-  // UserMenu: '/user/nav'
-
-  UserInfo: '/system/userInfo',
-  UserMenu: '/system/menu'
-}
-
+const userApi = APIS.loginApi
 /**
  * login func
  * parameter: {

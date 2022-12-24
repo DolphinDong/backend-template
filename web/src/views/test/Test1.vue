@@ -25,6 +25,7 @@
 </template>
   <script>
   import request from '@/utils/request'
+  import APIS from '@/api/url'
   export default {
     name: 'Test1',
     data () {
@@ -47,6 +48,9 @@
       }
       }
 
+    },
+    mounted () {
+      console.log(APIS.BaseUrl, APIS.loginApi.UserInfo)
     }
   }
   </script>
