@@ -16,10 +16,10 @@
     <a-button v-if="$auth(authUrl+'.get')" @click="authTest(1)">errorMsg</a-button>
     <a-button v-if="$auth(authUrl+'.update')" @click="authTest(2)">err</a-button>
     <a-button v-if="$auth(authUrl+'.update')" @click="authTest(3)">warning</a-button>
-    <a-button v-action:delete>v-action</a-button>
-    <a-button v-action:post>v-action</a-button>
-    <a-button v-action:get>v-action</a-button>
-    <a-button v-action:delete>v-action</a-button>
+    <a-button v-action:delete>v-action1</a-button>
+    <a-button v-action:post>v-action2</a-button>
+    <a-button v-action:get>v-action3</a-button>
+    <a-button v-action:delete>v-action4</a-button>
     <h1>{{ title }}</h1>
   </div>
 </template>

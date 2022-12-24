@@ -30,8 +30,8 @@ type Permission struct {
 	ID           int    `json:"id" gorm:"primaryKey;autoIncrement"`
 	MenuID       int    `json:"menu_id" gorm:"not null;index"`
 	Describe     string `json:"describe" gorm:"not null;size:255;comment:权限描述"`
-	Identify     string `json:"identify" gorm:"not null;size:255;uniqueIndex:identify_action;comment:权限标识"`
-	Action       string `json:"action" gorm:"not null;size:50;uniqueIndex:identify_action;comment:动作"`
+	Identify     string `json:"identify" gorm:"not null;size:255;uniqueIndex:identify_action;index;comment:权限标识"`
+	Action       string `json:"action" gorm:"not null;size:50;uniqueIndex:identify_action;index;comment:动作"`
 	DefaultCheck bool   `json:"defaultCheck" gorm:"-"`
 	gorm.Model   `json:"-"`
 }

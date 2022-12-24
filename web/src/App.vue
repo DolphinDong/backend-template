@@ -26,3 +26,10 @@ export default {
   }
 }
 </script>
+<style>
+.div-container{
+  background:white;
+  padding: 8px
+}
+
+</style>

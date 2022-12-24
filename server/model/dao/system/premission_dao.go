@@ -25,3 +25,14 @@ func (pd *PermissionDao) QueryPermissionsByIdentifyAndActions(identify string, a
 	}
 	return
 }
+
+func (pd *PermissionDao) QueryPermissionsByIdentifies(identifies []string) (permissions []*model.Permission, err error) {
+	result := pd.Where("identify in ? ", identifies).Find(&permissions)
+	if result.Error != nil {
+		return nil, errors.WithStack(result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+	return
+}

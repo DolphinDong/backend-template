@@ -25,7 +25,7 @@ func PermissionCheck() gin.HandlerFunc {
 			ctx.Next()
 			return
 		}
-		ok, err := tools.HasPermission("efa07b65-ff48-4409-8ae1-6d8aec0f9475", obj, act)
+		ok, err := tools.HasPermission("efa07b65-ff48-4409-8ae1-6d8aec0f9475", obj, act, true)
 		if err != nil {
 			global.Logger.Errorf("%+v", errors.WithMessage(err, "鉴权异常"))
 			response.ResponseHttpError(ctx, "鉴权异常")

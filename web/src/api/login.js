@@ -12,7 +12,7 @@ const userApi = {
   // UserInfo: '/user/info',
   // UserMenu: '/user/nav'
 
-  UserInfo: '/system/user',
+  UserInfo: '/system/userInfo',
   UserMenu: '/system/menu'
 }
 

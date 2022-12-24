@@ -24,10 +24,13 @@ func (ms *MenuService) GetUserMenu(userId string) (menus []*model2.SystemMenu, e
 		return nil, errors.WithStack(err)
 	}
 	menuAndPermissionMap := ms.groupMenuById(allMenuAndPermissions)
+	// 第一次校验权限需要重新加载权限表中的数据
+	isFirst := true
 	for _, menuAndPermissions := range menuAndPermissionMap {
 		// 获取第0个
 		m1 := menuAndPermissions[0]
-		hasPermission, err := tools.HasPermission(userId, m1.Name, constant.MenuAct)
+		hasPermission, err := tools.HasPermission(userId, m1.Name, constant.MenuAct, isFirst)
+		isFirst = false
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
@@ -89,7 +92,7 @@ func (ms *MenuService) GetUserMenu2(userId string) (menus []*model2.SystemMenu, 
 	}
 	menus = []*model2.SystemMenu{}
 	for _, menu := range allMenus {
-		hasPermission, err := tools.HasPermission(userId, menu.Name, constant.MenuAct)
+		hasPermission, err := tools.HasPermission(userId, menu.Name, constant.MenuAct, false)
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}

@@ -3,7 +3,6 @@ package router
 import (
 	"github.com/DolphinDong/backend-template/common/response"
 	"github.com/DolphinDong/backend-template/controller/system"
-	"github.com/DolphinDong/backend-template/tools"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -18,7 +17,7 @@ func registerRouter(engine *gin.Engine) {
 			systemApi.GET("/menu", menuController.GetUserMenu)
 
 			userController := system.NewUserController()
-			systemApi.GET("/user", userController.GetUserInfo)
+			systemApi.GET("/userInfo", userController.GetUserInfo)
 		}
 
 	}
@@ -31,13 +30,6 @@ func registerRouter(engine *gin.Engine) {
 	})
 	api.GET("/test3", func(ctx *gin.Context) {
 		response.ResponseOKCodeWithWarningMessage(ctx, "警告")
-	})
-
-	api.GET("/get-permission", func(ctx *gin.Context) {
-		name := ctx.DefaultQuery("name", "liudong")
-		permissions := tools.QueryPermissionByUserID(name)
-		response.ResponseOkWithData(ctx, permissions)
-		return
 	})
 
 	engine.NoRoute(func(ctx *gin.Context) {
