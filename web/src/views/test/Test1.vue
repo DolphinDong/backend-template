@@ -13,7 +13,7 @@
       <a-button type="dashed">Dashed</a-button>
       <a-button type="link">Link</a-button>
     </a-space>
-    <a-button v-if="$auth(authUrl+'.get')" @click="authTest(1)">errorMsg</a-button>
+    <a-button v-if="$auth('/api/test/test2.delete')" @click="authTest(1)">/api/test/test2.delete</a-button>
     <a-button v-if="$auth(authUrl+'.update')" @click="authTest(2)">err</a-button>
     <a-button v-if="$auth(authUrl+'.update')" @click="authTest(3)">warning</a-button>
     <a-button v-action:delete>v-action1</a-button>
