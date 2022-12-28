@@ -5,7 +5,7 @@
       <a-row :gutter="48">
         <a-col :md="8" :sm="24">
           <a-form-item label="搜索">
-            <a-input v-model="queryParam.query" placeholder="请输入关键信息" />
+            <a-input v-model="queryParam.query" @pressEnter="searchUser" placeholder="请输入关键信息" />
           </a-form-item>
         </a-col>
         <template v-if="advanced">
@@ -58,7 +58,7 @@
         </a-col>
       </a-row>
     </a-form>
-    <a-button v-if="$auth(userApi + '.post')" style="margin-bottom:15px" type="primary" icon="user-add" >添加用户</a-button>
+    <a-button v-if="$auth(userApi + '.post')" style="margin-bottom:15px" type="primary" icon="user-add" @click="addUser">添加用户</a-button>
     <a-table
       rowKey="id"
       :columns="columns"
@@ -74,17 +74,16 @@
           :text="getGenderInfo(gender).text"
         />
       </span>
-
-      <span slot="status" slot-scope="status">
+      <span slot="userStatus" slot-scope="userStatus">
         <a-badge
-          v-if="status"
-          :status="getGenderInfo(status).type"
-          :text="getStatusInfo(status).text"
+          v-if="userStatus===false || userStatus===true"
+          :status="getStatusInfo(userStatus).type"
+          :text="getStatusInfo(userStatus).text"
         />
       </span>
       <span slot="is_admin" slot-scope="is_admin">
         <a-badge
-          v-if="is_admin"
+          v-if="is_admin===false || is_admin===true"
           :status="getIsAdminInfo(is_admin).type"
           :text="getIsAdminInfo(is_admin).text"
         />
@@ -112,11 +111,22 @@
         >
       </span>
     </a-table>
+
+    <a-modal
+      :title="ModalText"
+      :visible="visible"
+      :confirm-loading="confirmLoading"
+      @ok="handleOk"
+      @cancel="handleCancel"
+    >
+    </a-modal>
   </a-card>
 </template>
 
 <script>
 import APIS from '@/api/url'
+import { getUsers } from '@/api/user'
+
 const genderMap = {
   1: {
     type: 'success',
@@ -129,21 +139,21 @@ const genderMap = {
 }
 
 const statusMap = {
-  1: {
+  true: {
     type: 'success',
     text: '启用'
   },
-  2: {
+  false: {
     type: 'error',
     text: '禁用'
   }
 }
 const isAdminMap = {
-  1: {
+  true: {
     type: 'success',
     text: '是'
   },
-  2: {
+  false: {
     type: 'error',
     text: '否'
   }
@@ -181,7 +191,7 @@ const columns = [
   {
     title: '状态',
     dataIndex: 'status',
-    scopedSlots: { customRender: 'status' }
+    scopedSlots: { customRender: 'userStatus' }
   },
   {
     title: '上次登录时间',
@@ -201,37 +211,14 @@ const columns = [
   }
 ]
 
-const data = [
-  {
-    id: '123456789',
-    username: '刘冬',
-    gender: 1,
-    login_name: 'liudong',
-    phone_number: '12345678520',
-    email: 'liudong@ones.ai',
-    is_admin: 1,
-    status: 1,
-    last_login_time: 1671874280000,
-    last_login_ip: '192.168.66.12'
-  },
-  {
-    id: '1234567891',
-    username: '李四',
-    gender: 2,
-    login_name: 'lisi',
-    phone_number: '12345678521',
-    email: 'lisi@ones.ai',
-    is_admin: 2,
-    status: 2,
-    last_login_time: '1671875535000',
-    last_login_ip: '192.168.66.13'
-  }
-]
 export default {
   name: 'User',
   data: function () {
     return {
-      data,
+      ModalText: '新增用户',
+      visible: false,
+      confirmLoading: false,
+      data: [],
       columns,
       userApi: APIS.BaseUrl + APIS.userApi.user,
       loadingTable: false,
@@ -259,7 +246,8 @@ export default {
   },
   methods: {
     onShowSizeChange (current, pageSize) {
-      this.pageSize = pageSize
+      this.pagination.pageSize = pageSize
+      this.queryUser()
     },
     handleTableChange (pagination, filters, sorter) {
       // console.log(pagination)
@@ -275,8 +263,9 @@ export default {
       // })
     },
     handPageChange (page, size) {
-      console.log('1111')
       this.pagination.current = page
+      this.pagination.pageSize = size
+      this.queryUser()
     },
     getGenderInfo (gender) {
       return genderMap[gender] || { type: '', text: '' }
@@ -291,12 +280,43 @@ export default {
       this.advanced = !this.advanced
     },
     searchUser () {
-      console.log('current:' + this.pagination.current + ' pageSize:' + this.pagination.pageSize)
-      console.log(this.queryParam)
+      this.pagination.current = 1
+      this.queryUser()
+    },
+    handleOk (e) {
+      this.ModalText = 'The modal will be closed after two seconds'
+      this.confirmLoading = true
+      setTimeout(() => {
+        this.visible = false
+        this.confirmLoading = false
+      }, 2000)
+    },
+    handleCancel (e) {
+      console.log('Clicked cancel button')
+      this.visible = false
+    },
+    addUser () {
+      this.ModalText = '新增用户'
+      this.visible = true
+    },
+    async queryUser () {
+      this.loadingTable = true
+     const res = await getUsers({
+        page: this.pagination.current,
+        page_size: this.pagination.pageSize,
+        search: this.queryParam.query,
+        gender: this.queryParam.gender,
+        is_admin: this.queryParam.is_admin,
+        status: this.queryParam.status
+
+      })
+      this.data = res.data.data
+      this.pagination.total = res.data.total
+      this.loadingTable = false
     }
   },
   mounted () {
-    console.log(this.userApi)
+    this.queryUser()
   }
 }
 </script>

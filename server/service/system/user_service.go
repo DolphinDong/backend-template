@@ -2,6 +2,7 @@ package system
 
 import (
 	"github.com/DolphinDong/backend-template/common/constant"
+	"github.com/DolphinDong/backend-template/common/structs"
 	"github.com/DolphinDong/backend-template/model/dao/system"
 	"github.com/DolphinDong/backend-template/model/model"
 	"github.com/DolphinDong/backend-template/tools"
@@ -76,5 +77,16 @@ func (us *UserService) GetPermissionsMap(userId string) (permissionsMap map[stri
 		}
 
 	}
+	return
+}
+
+func (us *UserService) GetUsers(query *structs.TableQuery, gender, isAdmin, status string) (tableResponse *structs.TableResponse, err error) {
+	tableResponse = new(structs.TableResponse)
+	users, total, err := us.UserDao.QueryUser(query.Page, query.PageSize, query.Search, gender, isAdmin, status)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	tableResponse.Data = users
+	tableResponse.Total = total
 	return
 }

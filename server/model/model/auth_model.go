@@ -25,8 +25,9 @@ type User struct {
 	Password      string `gorm:"size:255;not null;comment:密码" json:"-"`
 	Email         string `gorm:"size:50;not null;comment:邮箱" json:"email" validate:"email,required"`
 	IsAdmin       bool   `gorm:"comment:是否是超级管理员;default:false" json:"is_admin"`
-	LastLoginTime int    `gorm:"comment:上次登录时间;" json:"last_login_time"`
-	LastLoginIp   int    `gorm:"comment:上次登录Ip;" json:"last_login_ip"`
+	Status        bool   `gorm:"comment:状态;default:true" json:"status"`
+	LastLoginTime int64  `gorm:"comment:上次登录时间;" json:"last_login_time"`
+	LastLoginIp   string `gorm:"comment:上次登录Ip;size:50" json:"last_login_ip"`
 	Role          map[string]interface {
 	} `gorm:"-" json:"role"`
 	gorm.Model `json:"-"`
