@@ -49,6 +49,24 @@ func (ud *UserDao) QueryUser(page int, size int, search, gender, isAdmin, status
 	return
 }
 
+func (ud *UserDao) QueryUserByLoginNameAndPwd(loginName, password string) (user *model.User, err error) {
+	err = ud.Where("login_name=?", loginName).Where("password=?", password).First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, errors.WithStack(err)
+	}
+	return
+}
+
+func (ud *UserDao) UpdateUserLoginInfo(user *model.User) error {
+	if err := ud.Select("last_login_ip", "last_login_time").Updates(user).Error; err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
+}
+
 func NewUserDao() *UserDao {
 	return &UserDao{
 		global.DB,

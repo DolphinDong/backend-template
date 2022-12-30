@@ -1,1 +1,58 @@
 package system
+
+import (
+	"github.com/DolphinDong/backend-template/common/constant"
+	"github.com/DolphinDong/backend-template/common/response"
+	"github.com/DolphinDong/backend-template/global"
+	"github.com/DolphinDong/backend-template/service/system"
+	"github.com/DolphinDong/backend-template/tools"
+	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
+)
+
+type LoginController struct {
+	LoginService *system.LoginService
+}
+
+func NewLoginController() *LoginController {
+	return &LoginController{
+		LoginService: system.NewLoginService(),
+	}
+}
+
+type Login struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+func (lc *LoginController) Login(ctx *gin.Context) {
+	params := &Login{}
+	err := ctx.ShouldBind(&params)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "read user info failed"))
+		response.ResponseHttpError(ctx, "系统异常 登录失败")
+		return
+	}
+	user, err := lc.LoginService.Login(params.Username, params.Password, ctx.RemoteIP())
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "login failed"))
+		response.ResponseHttpError(ctx, "系统异常 登录失败")
+		return
+	}
+	// 登录成功
+	if user != nil {
+		token, err := tools.CreateToken([]byte(tools.SecretKey), user.ID, constant.TokenPeriod)
+		if err != nil {
+			global.Logger.Errorf("%+v", errors.WithMessage(err, "create token failed"))
+			response.ResponseHttpError(ctx, "系统异常 登录失败")
+			return
+		}
+		response.ResponseOkWithData(ctx, map[string]string{
+			"token": token,
+		})
+		return
+	} else {
+		global.Logger.Error("登录失败")
+		response.ResponseHttpErrorWithInfo(ctx, "登录失败")
+	}
+}

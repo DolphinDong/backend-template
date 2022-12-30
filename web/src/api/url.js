@@ -1,6 +1,6 @@
 
 const loginApi = {
-    Login: '/auth/login',
+    Login: '/system/login',
     Logout: '/auth/logout',
     ForgePassword: '/auth/forge-password',
     Register: '/auth/register',

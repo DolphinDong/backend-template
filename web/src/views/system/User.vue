@@ -89,7 +89,7 @@
         />
       </span>
       <span slot="last_login_time" slot-scope="last_login_time">
-        {{ last_login_time | timeFomaterFilter }}
+        {{ last_login_time | timeFomaterFilter2 }}
       </span>
 
       <span slot="last_login_ip" slot-scope="last_login_ip">
@@ -99,6 +99,18 @@
       </span>
 
       <span slot="action" slot-scope="text, record">
+        <a v-if="$auth(userApi + '.put')">编辑</a>
+        <a-divider type="vertical" />
+        <a-dropdown v-if="$auth(userApi + '.put')||$auth(userApi + '.delete')">
+          <a-menu slot="overlay">
+            <a-menu-item v-if="$auth(userApi + '.put')"><a>编辑</a></a-menu-item>
+            <a-menu-item v-if="$auth(userApi + '.delete')"><a>删除</a></a-menu-item>
+          </a-menu>
+          <a>更多<a-icon type="down"/></a>
+        </a-dropdown>
+
+        <!--
+
         <a-button
           size="small"
           v-if="$auth(userApi + '.put')"
@@ -108,7 +120,7 @@
         >
         <a-button size="small" v-if="$auth(userApi + '.delete')" type="danger">
           删除</a-button
-        >
+        > -->
       </span>
     </a-table>
 

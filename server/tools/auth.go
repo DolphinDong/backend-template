@@ -1,8 +1,13 @@
 package tools
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"github.com/DolphinDong/backend-template/global"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
+	"strings"
+	"time"
 )
 
 // 鉴权, ctx 中包含了当前用户的信息
@@ -63,4 +68,43 @@ func QueryPermissionByRoleID(roleid string) map[string][]string {
 		}
 	}
 	return res
+}
+
+const (
+	SecretKey = "b7eabdec-683f-0eb2-ad3c-43e3c2220251"
+	Salt      = "75737eb1-3a1d-629c-6617-2c3f85769599"
+)
+
+// 生成Token：
+// SecretKey 是一个 const 常量
+func CreateToken(SecretKey []byte, issuer string, periodMinutes int) (tokenString string, err error) {
+	m := time.Duration(periodMinutes)
+	claims := jwt.StandardClaims{
+		ExpiresAt: int64(time.Now().Add(time.Minute * m).Unix()),
+		Issuer:    issuer,
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err = token.SignedString(SecretKey)
+	return
+}
+
+// 解析Token
+func ParseToken(tokenSrt string, SecretKey []byte) (claims *jwt.StandardClaims, err error) {
+	var token *jwt.Token
+	token, err = jwt.ParseWithClaims(tokenSrt, &jwt.StandardClaims{}, func(*jwt.Token) (interface{}, error) {
+		return SecretKey, nil
+	})
+	claims = token.Claims.(*jwt.StandardClaims)
+	return
+}
+
+// 生成密码
+func GetEncryptedPassword(str string) string {
+	str = strings.ToUpper(Salt) + str + Salt
+	return MD5Str(str)
+}
+func MD5Str(src string) string {
+	h := md5.New()
+	h.Write([]byte(src)) // 需要加密的字符串为
+	return hex.EncodeToString(h.Sum(nil))
 }

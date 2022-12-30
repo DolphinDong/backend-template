@@ -12,16 +12,16 @@
         :tabBarStyle="{ textAlign: 'center', borderBottom: 'unset' }"
         @change="handleTabClick"
       >
-        <a-tab-pane key="tab1" :tab="$t('user.login.tab-login-credentials')">
-          <a-alert v-if="isLoginError" type="error" showIcon style="margin-bottom: 24px;" :message="$t('user.login.message-invalid-credentials')" />
+        <a-tab-pane key="tab1" tab="账号密码登录">
+          <a-alert v-if="isLoginError" type="error" showIcon style="margin-bottom: 24px;" message="账户或密码错误" />
           <a-form-item>
             <a-input
               size="large"
               type="text"
-              :placeholder="$t('user.login.username.placeholder')"
+              placeholder="登录名"
               v-decorator="[
                 'username',
-                {rules: [{ required: true, message: $t('user.userName.required') }, { validator: handleUsernameOrEmail }], validateTrigger: 'change'}
+                {rules: [{ required: true, message: '请输入账号' }, { validator: handleUsernameOrEmail }], validateTrigger: 'change'}
               ]"
             >
               <a-icon slot="prefix" type="user" :style="{ color: 'rgba(0,0,0,.25)' }"/>
@@ -31,52 +31,18 @@
           <a-form-item>
             <a-input-password
               size="large"
-              :placeholder="$t('user.login.password.placeholder')"
+              placeholder="密码"
               v-decorator="[
                 'password',
-                {rules: [{ required: true, message: $t('user.password.required') }], validateTrigger: 'blur'}
+                {rules: [{ required: true, message: '请输入密码' }], validateTrigger: 'blur'}
               ]"
             >
               <a-icon slot="prefix" type="lock" :style="{ color: 'rgba(0,0,0,.25)' }"/>
             </a-input-password>
           </a-form-item>
         </a-tab-pane>
-        <a-tab-pane key="tab2" :tab="$t('user.login.tab-login-mobile')">
-          <a-form-item>
-            <a-input size="large" type="text" :placeholder="$t('user.login.mobile.placeholder')" v-decorator="['mobile', {rules: [{ required: true, pattern: /^1[34578]\d{9}$/, message: $t('user.login.mobile.placeholder') }], validateTrigger: 'change'}]">
-              <a-icon slot="prefix" type="mobile" :style="{ color: 'rgba(0,0,0,.25)' }"/>
-            </a-input>
-          </a-form-item>
 
-          <a-row :gutter="16">
-            <a-col class="gutter-row" :span="16">
-              <a-form-item>
-                <a-input size="large" type="text" :placeholder="$t('user.login.mobile.verification-code.placeholder')" v-decorator="['captcha', {rules: [{ required: true, message: $t('user.verification-code.required') }], validateTrigger: 'blur'}]">
-                  <a-icon slot="prefix" type="mail" :style="{ color: 'rgba(0,0,0,.25)' }"/>
-                </a-input>
-              </a-form-item>
-            </a-col>
-            <a-col class="gutter-row" :span="8">
-              <a-button
-                class="getCaptcha"
-                tabindex="-1"
-                :disabled="state.smsSendBtn"
-                @click.stop.prevent="getCaptcha"
-                v-text="!state.smsSendBtn && $t('user.register.get-verification-code') || (state.time+' s')"
-              ></a-button>
-            </a-col>
-          </a-row>
-        </a-tab-pane>
       </a-tabs>
-
-      <a-form-item>
-        <a-checkbox v-decorator="['rememberMe', { valuePropName: 'checked' }]">{{ $t('user.login.remember-me') }}</a-checkbox>
-        <router-link
-          :to="{ name: 'recover', params: { user: 'aaa'} }"
-          class="forge-password"
-          style="float: right;"
-        >{{ $t('user.login.forgot-password') }}</router-link>
-      </a-form-item>
 
       <a-form-item style="margin-top:24px">
         <a-button
@@ -88,20 +54,6 @@
           :disabled="state.loginBtn"
         >{{ $t('user.login.login') }}</a-button>
       </a-form-item>
-
-      <div class="user-login-other">
-        <span>{{ $t('user.login.sign-in-with') }}</span>
-        <a>
-          <a-icon class="item-icon" type="alipay-circle"></a-icon>
-        </a>
-        <a>
-          <a-icon class="item-icon" type="taobao-circle"></a-icon>
-        </a>
-        <a>
-          <a-icon class="item-icon" type="weibo-circle"></a-icon>
-        </a>
-        <router-link class="register" :to="{ name: 'register' }">{{ $t('user.login.signup') }}</router-link>
-      </div>
     </a-form>
 
     <two-step-captcha
@@ -269,13 +221,8 @@ export default {
       }, 1000)
       this.isLoginError = false
     },
-    requestFailed (err) {
+    requestFailed () {
       this.isLoginError = true
-      this.$notification['error']({
-        message: '错误',
-        description: ((err.response || {}).data || {}).message || '请求出现错误，请稍后再试',
-        duration: 4
-      })
     }
   }
 }

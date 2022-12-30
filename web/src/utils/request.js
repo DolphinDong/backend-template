@@ -34,14 +34,14 @@ const errorHandler = (error) => {
 
     if (error.response.status === 401 && !(data.result && data.result.isLogin)) {
       notification.error({
-        message: 'Unauthorized',
-        description: 'Authorization verification failed'
+        message: '登录提醒',
+        description: '会话已过期请重新登录'
       })
       if (token) {
         store.dispatch('Logout').then(() => {
           setTimeout(() => {
             window.location.reload()
-          }, 1500)
+          }, 1000)
         })
       }
       return
@@ -79,6 +79,11 @@ request.interceptors.request.use(config => {
 
 // response interceptor
 request.interceptors.response.use((response) => {
+  if (response && response.headers && response.headers['new-token']) {
+    const newToken = response.headers['new-token']
+    store.dispatch('ReplaceToken', newToken)
+  }
+
   if (response.data && response.data.msg && response.data.code === 20003) {
     message.warning(response.data.msg)
   }

@@ -7,7 +7,7 @@ require (
 	github.com/casbin/casbin/v2 v2.60.0
 	github.com/casbin/gorm-adapter/v3 v3.13.1
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
-	github.com/deckarep/golang-set v1.8.0
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/gomodule/redigo v2.0.0+incompatible
