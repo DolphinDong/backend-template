@@ -103,24 +103,13 @@
         <a-divider type="vertical" />
         <a-dropdown v-if="$auth(userApi + '.put')||$auth(userApi + '.delete')">
           <a-menu slot="overlay">
-            <a-menu-item v-if="$auth(userApi + '.put')"><a>编辑</a></a-menu-item>
-            <a-menu-item v-if="$auth(userApi + '.delete')"><a>删除</a></a-menu-item>
+            <!-- <a-menu-item v-if="$auth(userApi + '.put')"><a>编辑</a></a-menu-item> -->
+            <a-menu-item v-if="$auth(userApi + '.put')"><a >修改密码</a></a-menu-item>
+            <a-menu-item v-if="$auth(userApi + '.delete')"><a style="color:red">删除</a></a-menu-item>
           </a-menu>
           <a>更多<a-icon type="down"/></a>
         </a-dropdown>
 
-        <!--
-
-        <a-button
-          size="small"
-          v-if="$auth(userApi + '.put')"
-          type="primary"
-          style="margin-right: 5px"
-        >编辑</a-button
-        >
-        <a-button size="small" v-if="$auth(userApi + '.delete')" type="danger">
-          删除</a-button
-        > -->
       </span>
     </a-table>
 
@@ -130,7 +119,92 @@
       :confirm-loading="confirmLoading"
       @ok="handleOk"
       @cancel="handleCancel"
+      width="40%"
+      :forceRender="true"
     >
+      <a-form :form="form" :label-col="{ span: 5 }" :wrapper-col="{ span: 17 }">
+        <a-form-item
+          label="姓名"
+        >
+          <a-input
+            v-decorator="[
+              'username',
+              { rules: [{ required: true, message: '请输入姓名' }] },
+            ]"
+            placeholder="请输入姓名"
+          />
+        </a-form-item>
+        <a-form-item label="登录名">
+          <a-input
+            v-decorator="[
+              'login_name',
+              { rules: [{ required: true, message: '请输入登录名' }] },
+            ]"
+            placeholder="请输入登录名"
+          />
+        </a-form-item>
+        <a-form-item label="性别">
+          <a-radio-group
+            v-decorator="[
+              'gender',
+              { rules: [{ required: true, message: '请选择性别' }] },
+            ]">
+            <a-radio :value="1">
+              男
+            </a-radio>
+            <a-radio :value="2">
+              女
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item label="手机号">
+          <a-input
+            v-decorator="[
+              'phone_number',
+              { rules: [{ required: true, message: '请输入手机号' }] },
+            ]"
+            placeholder="请输入手机号"
+          />
+        </a-form-item>
+        <a-form-item label="邮箱">
+          <a-input
+            v-decorator="[
+              'email',
+              { rules: [{ required: true, message: '请输入邮箱' }] },
+            ]"
+            placeholder="请输入邮箱"
+          />
+        </a-form-item>
+        <a-form-item label="管理员">
+          <a-radio-group
+            v-decorator="[
+              'is_admin',
+              { rules: [{ required: true, message: '请选择是否为管理员' }] },
+            ]">
+            <a-radio :value="1">
+              是
+            </a-radio>
+            <a-radio :value="0">
+              否
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+        <a-form-item label="状态">
+          <a-radio-group
+            v-decorator="[
+              'status',
+              { rules: [{ required: true, message: '请选择用户状态' }] },
+            ]">
+            <a-radio :value="1">
+              启用
+            </a-radio>
+            <a-radio :value="0">
+              禁用
+            </a-radio>
+          </a-radio-group>
+        </a-form-item>
+      </a-form>
+
     </a-modal>
   </a-card>
 </template>
@@ -253,7 +327,8 @@ export default {
         onShowSizeChange: (current, size) => {
           this.handPageChange(current, size)
         }
-      }
+      },
+      form: this.$form.createForm(this, { name: 'coordinated' })
     }
   },
   methods: {
@@ -296,18 +371,26 @@ export default {
       this.queryUser()
     },
     handleOk (e) {
-      this.ModalText = 'The modal will be closed after two seconds'
-      this.confirmLoading = true
-      setTimeout(() => {
-        this.visible = false
-        this.confirmLoading = false
+      this.form.validateFields((err, values) => {
+        if (err) {
+          return
+        }
+        console.log(values)
+        this.ModalText = 'The modal will be closed after two seconds'
+        this.confirmLoading = true
+        setTimeout(() => {
+          this.visible = false
+          this.confirmLoading = false
       }, 2000)
+      })
     },
     handleCancel (e) {
+      this.form.resetFields()
       console.log('Clicked cancel button')
       this.visible = false
     },
     addUser () {
+      this.initFormData()
       this.ModalText = '新增用户'
       this.visible = true
     },
@@ -325,10 +408,20 @@ export default {
       this.data = res.data.data
       this.pagination.total = res.data.total
       this.loadingTable = false
+    },
+    initFormData () {
+      this.$nextTick(() => {
+      this.form.setFieldsValue({
+        gender: 2,
+        is_admin: 0,
+        status: 1
+      })
+  })
     }
   },
   mounted () {
     this.queryUser()
+    this.initFormData()
   }
 }
 </script>
