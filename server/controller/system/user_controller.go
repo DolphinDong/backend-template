@@ -1,6 +1,7 @@
 package system
 
 import (
+	"github.com/DolphinDong/backend-template/common/constant"
 	"github.com/DolphinDong/backend-template/common/response"
 	"github.com/DolphinDong/backend-template/common/structs"
 	"github.com/DolphinDong/backend-template/global"
@@ -20,9 +21,10 @@ func NewUserController() *UserController {
 }
 
 func (uc *UserController) GetUserInfo(ctx *gin.Context) {
-	userId := "user02"
-	userId = "efa07b65-ff48-4409-8ae1-6d8aec0f9475"
-	userInfo, err := uc.UserService.GetUserInfo(userId)
+	// userId := "user02"
+	//userId = "efa07b65-ff48-4409-8ae1-6d8aec0f9475"
+	userId, _ := ctx.Get(constant.UserContextKey)
+	userInfo, err := uc.UserService.GetUserInfo(userId.(string))
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "get user info failed"))
 		response.ResponseHttpError(ctx, "获取用户信息失败")
