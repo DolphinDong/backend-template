@@ -8,3 +8,11 @@ export function getUsers (params) {
       params: params
     })
   }
+
+export function addUser (data) {
+    return request({
+      url: APIS.userApi.user,
+      method: 'post',
+      data: data
+    })
+}

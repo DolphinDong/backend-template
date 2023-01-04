@@ -17,8 +17,8 @@ type CasbinRule struct {
 
 type User struct {
 	ID            string `gorm:"primaryKey;size:50" json:"id" `
-	LoginName     string `gorm:"size:50;not null;comment:用户ID;unique" json:"login_name" validate:"min=5,max=30,required"`
-	Username      string `gorm:"size:255;not null;comment:用户名" json:"username" validate:"required"`
+	LoginName     string `gorm:"size:50;not null;comment:用户ID;unique" json:"login_name" validate:"min=4,max=20,required"`
+	Username      string `gorm:"size:255;not null;comment:用户名" json:"username" validate:"min=2,max=20,required"`
 	Gender        int    `gorm:"size:5;comment:性别" json:"gender" validate:"required"`
 	Avatar        string `gorm:"size:255;comment:头像地址" json:"avatar"`
 	PhoneNumber   string `gorm:"size:11;not null;comment:手机号码;unique" json:"phone_number" validate:"len=11,required"`

@@ -5,7 +5,9 @@ import (
 	"github.com/DolphinDong/backend-template/common/response"
 	"github.com/DolphinDong/backend-template/common/structs"
 	"github.com/DolphinDong/backend-template/global"
+	"github.com/DolphinDong/backend-template/model/model"
 	"github.com/DolphinDong/backend-template/service/system"
+	"github.com/DolphinDong/backend-template/tools"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 )
@@ -58,4 +60,21 @@ func (uc *UserController) GetUsers(ctx *gin.Context) {
 		return
 	}
 	response.ResponseOkWithData(ctx, users)
+}
+
+func (uc *UserController) AddUser(ctx *gin.Context) {
+	user := &model.User{}
+	err := ctx.ShouldBind(user)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "add user failed"))
+		response.ResponseHttpError(ctx, "获取用户信息失败")
+		return
+	}
+	err = tools.Validate(user)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "validate parameter failed"))
+		response.ResponseHttpErrorWithInfo(ctx, err.Error())
+		return
+	}
+	response.ResponseOkWithMessage(ctx, "添加成功")
 }

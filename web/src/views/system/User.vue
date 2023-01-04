@@ -119,7 +119,7 @@
         <a-dropdown v-if="$auth(userApi + '.put') || $auth(userApi + '.delete')">
           <a-menu slot="overlay">
             <!-- <a-menu-item v-if="$auth(userApi + '.put')"><a>编辑</a></a-menu-item> -->
-            <a-menu-item v-if="$auth(userApi + '.put')"><a>修改密码</a></a-menu-item>
+            <a-menu-item v-if="$auth(userApi + '.put')"><a>重置密码</a></a-menu-item>
             <a-menu-item
               v-if="$auth(userApi + '.delete')"
             ><a style="color: red">删除</a></a-menu-item
@@ -144,16 +144,17 @@
           <a-input
             v-decorator="[
               'username',
-              { rules: [{ required: true, message: '请输入姓名' }] },
+              { rules: [{ pattern: /^.{2,10}$/, required: true, message: '请输入正确的姓名：长度为2-10' }] },
             ]"
             placeholder="请输入姓名"
           />
         </a-form-item>
         <a-form-item label="登录名">
           <a-input
+            :disabled="disableInput"
             v-decorator="[
               'login_name',
-              { rules: [{ required: true, message: '请输入登录名' }] },
+              { rules: [{ pattern: /^[a-zA-Z0-9]{4,20}$/,required: true, message: '请输入正确的登录名：数组字母组成且长度为4-20' }] },
             ]"
             placeholder="请输入登录名"
           />
@@ -173,7 +174,7 @@
           <a-input
             v-decorator="[
               'phone_number',
-              { rules: [{ required: true, message: '请输入手机号' }] },
+              { rules: [{ pattern: /^1[3456789]\d{9}$/,required: true, message: '请输入正确的手机号' }] },
             ]"
             placeholder="请输入手机号"
           />
@@ -182,7 +183,7 @@
           <a-input
             v-decorator="[
               'email',
-              { rules: [{ required: true, message: '请输入邮箱' }] },
+              { rules: [{ required: true,type: 'email', message: '请输入正确的邮箱' }] },
             ]"
             placeholder="请输入邮箱"
           />
@@ -216,7 +217,7 @@
 
 <script>
 import APIS from '@/api/url'
-import { getUsers } from '@/api/user'
+import { getUsers, addUser } from '@/api/user'
 
 const genderMap = {
   1: {
@@ -310,6 +311,7 @@ export default {
       visible: false,
       confirmLoading: false,
       data: [],
+      disableInput: false,
       columns,
       userApi: APIS.BaseUrl + APIS.userApi.user,
       loadingTable: false,
@@ -319,6 +321,7 @@ export default {
         is_admin: '2'
       },
       advanced: false,
+      editRecord: {},
       pagination: {
         pageSizeOptions: ['10', '20', '30', '40', '50'],
         current: 1,
@@ -376,17 +379,33 @@ export default {
       this.queryUser()
     },
     handleOk (e) {
-      this.form.validateFields((err, values) => {
+      this.form.validateFields(async (err, values) => {
         if (err) {
           return
         }
-        console.log(values)
-        this.ModalText = 'The modal will be closed after two seconds'
+        values.status = values.status === 1
+        values.is_admin = values.is_admin === 1
+
         this.confirmLoading = true
-        setTimeout(() => {
-          this.visible = false
+        let data = {}
+        try {
+          // 编辑
+          if (this.editRecord.id) {
+          } else { // 新增
+            data = await addUser(values)
+          }
+        } catch (e) {
+          return
+        } finally {
           this.confirmLoading = false
-        }, 2000)
+        }
+
+        if (data.code && data.code === 20001) {
+          this.$message.success(this.editRecord.id ? '编辑成功' : '添加成功')
+          this.visible = false
+          this.queryUser()
+        }
+        // this.confirmLoading = false
       })
     },
     handleCancel (e) {
@@ -395,11 +414,16 @@ export default {
       this.visible = false
     },
     addUser () {
+      this.form.resetFields()
+      this.editRecord = {}
+      this.disableInput = false
       this.initFormData()
       this.ModalText = '新增用户'
       this.visible = true
     },
     updateUser (record) {
+      this.editRecord = record
+      this.disableInput = true
       this.ModalText = '编辑用户信息'
       this.$nextTick(() => {
         this.form.setFieldsValue({
