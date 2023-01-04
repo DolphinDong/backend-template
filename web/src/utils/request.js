@@ -24,12 +24,12 @@ const errorHandler = (error) => {
         message: '403 Forbidden',
         description: data.msg
       })
-      return
+      return Promise.reject(error)
     }
 
     if (error.response.status === 400 || (error.response.status === 500 && data.code === 50001)) {
       message.error(data.msg)
-      return
+      return Promise.reject(error)
     }
 
     if (error.response.status === 401 && !(data.result && data.result.isLogin)) {
@@ -44,7 +44,7 @@ const errorHandler = (error) => {
           }, 1000)
         })
       }
-      return
+      return Promise.reject(error)
     }
     if (error.response.data && error.response.data.msg) {
       notification.error({
@@ -63,7 +63,7 @@ const errorHandler = (error) => {
       description: 'Unknown Error'
     })
   }
-  // return Promise.reject(error)
+  return Promise.reject(error)
 }
 
 // request interceptor
