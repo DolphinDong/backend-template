@@ -5,13 +5,17 @@
       <a-row :gutter="48">
         <a-col :md="8" :sm="24">
           <a-form-item label="搜索">
-            <a-input v-model="queryParam.query" @pressEnter="searchUser" placeholder="请输入关键信息" />
+            <a-input
+              v-model="queryParam.query"
+              @pressEnter="searchUser"
+              placeholder="请输入关键信息"
+            />
           </a-form-item>
         </a-col>
         <template v-if="advanced">
           <a-col :md="8" :sm="24">
             <a-form-item label="性别">
-              <a-select v-model="queryParam.gender" placeholder="请选择" >
+              <a-select v-model="queryParam.gender" placeholder="请选择">
                 <a-select-option value="3">全部</a-select-option>
                 <a-select-option value="1">男</a-select-option>
                 <a-select-option value="2">女</a-select-option>
@@ -20,9 +24,13 @@
           </a-col>
           <a-col :md="8" :sm="24">
             <a-form-item label="管理员">
-              <a-select placeholder="请选择" v-model="queryParam.is_admin" :default-value="2">
+              <a-select
+                placeholder="请选择"
+                v-model="queryParam.is_admin"
+                :default-value="2"
+              >
                 <a-select-option value="2">全部</a-select-option>
-                <a-select-option value="0" >否</a-select-option>
+                <a-select-option value="0">否</a-select-option>
                 <a-select-option value="1">是</a-select-option>
               </a-select>
             </a-form-item>
@@ -45,9 +53,9 @@
             <a-button type="primary" @click="searchUser">查询</a-button>
             <a-button
               style="margin-left: 8px"
-              @click="() => (this.queryParam = { gender: '3',
-                                                 status: '2',
-                                                 is_admin: '2'})"
+              @click="
+                () => (this.queryParam = { gender: '3', status: '2', is_admin: '2' })
+              "
             >重置</a-button
             >
             <a @click="toggleAdvanced" style="margin-left: 8px">
@@ -58,7 +66,14 @@
         </a-col>
       </a-row>
     </a-form>
-    <a-button v-if="$auth(userApi + '.post')" style="margin-bottom:15px" type="primary" icon="user-add" @click="addUser">添加用户</a-button>
+    <a-button
+      v-if="$auth(userApi + '.post')"
+      style="margin-bottom: 15px"
+      type="primary"
+      icon="user-add"
+      @click="addUser"
+    >添加用户</a-button
+    >
     <a-table
       rowKey="id"
       :columns="columns"
@@ -76,14 +91,14 @@
       </span>
       <span slot="userStatus" slot-scope="userStatus">
         <a-badge
-          v-if="userStatus===false || userStatus===true"
+          v-if="userStatus === false || userStatus === true"
           :status="getStatusInfo(userStatus).type"
           :text="getStatusInfo(userStatus).text"
         />
       </span>
       <span slot="is_admin" slot-scope="is_admin">
         <a-badge
-          v-if="is_admin===false || is_admin===true"
+          v-if="is_admin === false || is_admin === true"
           :status="getIsAdminInfo(is_admin).type"
           :text="getIsAdminInfo(is_admin).text"
         />
@@ -99,17 +114,19 @@
       </span>
 
       <span slot="action" slot-scope="text, record">
-        <a v-if="$auth(userApi + '.put')">编辑</a>
+        <a v-if="$auth(userApi + '.put')" @click="updateUser(record)">编辑</a>
         <a-divider type="vertical" />
-        <a-dropdown v-if="$auth(userApi + '.put')||$auth(userApi + '.delete')">
+        <a-dropdown v-if="$auth(userApi + '.put') || $auth(userApi + '.delete')">
           <a-menu slot="overlay">
             <!-- <a-menu-item v-if="$auth(userApi + '.put')"><a>编辑</a></a-menu-item> -->
-            <a-menu-item v-if="$auth(userApi + '.put')"><a >修改密码</a></a-menu-item>
-            <a-menu-item v-if="$auth(userApi + '.delete')"><a style="color:red">删除</a></a-menu-item>
+            <a-menu-item v-if="$auth(userApi + '.put')"><a>修改密码</a></a-menu-item>
+            <a-menu-item
+              v-if="$auth(userApi + '.delete')"
+            ><a style="color: red">删除</a></a-menu-item
+            >
           </a-menu>
-          <a>更多<a-icon type="down"/></a>
+          <a>更多<a-icon type="down" /></a>
         </a-dropdown>
-
       </span>
     </a-table>
 
@@ -123,9 +140,7 @@
       :forceRender="true"
     >
       <a-form :form="form" :label-col="{ span: 5 }" :wrapper-col="{ span: 17 }">
-        <a-form-item
-          label="姓名"
-        >
+        <a-form-item label="姓名">
           <a-input
             v-decorator="[
               'username',
@@ -148,13 +163,10 @@
             v-decorator="[
               'gender',
               { rules: [{ required: true, message: '请选择性别' }] },
-            ]">
-            <a-radio :value="1">
-              男
-            </a-radio>
-            <a-radio :value="2">
-              女
-            </a-radio>
+            ]"
+          >
+            <a-radio :value="1"> 男 </a-radio>
+            <a-radio :value="2"> 女 </a-radio>
           </a-radio-group>
         </a-form-item>
         <a-form-item label="手机号">
@@ -180,13 +192,10 @@
             v-decorator="[
               'is_admin',
               { rules: [{ required: true, message: '请选择是否为管理员' }] },
-            ]">
-            <a-radio :value="1">
-              是
-            </a-radio>
-            <a-radio :value="0">
-              否
-            </a-radio>
+            ]"
+          >
+            <a-radio :value="1"> 是 </a-radio>
+            <a-radio :value="0"> 否 </a-radio>
           </a-radio-group>
         </a-form-item>
         <a-form-item label="状态">
@@ -194,17 +203,13 @@
             v-decorator="[
               'status',
               { rules: [{ required: true, message: '请选择用户状态' }] },
-            ]">
-            <a-radio :value="1">
-              启用
-            </a-radio>
-            <a-radio :value="0">
-              禁用
-            </a-radio>
+            ]"
+          >
+            <a-radio :value="1"> 启用 </a-radio>
+            <a-radio :value="0"> 禁用 </a-radio>
           </a-radio-group>
         </a-form-item>
       </a-form>
-
     </a-modal>
   </a-card>
 </template>
@@ -381,7 +386,7 @@ export default {
         setTimeout(() => {
           this.visible = false
           this.confirmLoading = false
-      }, 2000)
+        }, 2000)
       })
     },
     handleCancel (e) {
@@ -394,16 +399,31 @@ export default {
       this.ModalText = '新增用户'
       this.visible = true
     },
+    updateUser (record) {
+      this.ModalText = '编辑用户信息'
+      this.$nextTick(() => {
+        this.form.setFieldsValue({
+          gender: record.gender,
+          is_admin: record.is_admin === true ? 1 : 0,
+          status: record.status === true ? 1 : 0,
+          username: record.username,
+          login_name: record.login_name,
+          phone_number: record.phone_number,
+          email: record.email
+        })
+      })
+
+      this.visible = true
+    },
     async queryUser () {
       this.loadingTable = true
-     const res = await getUsers({
+      const res = await getUsers({
         page: this.pagination.current,
         page_size: this.pagination.pageSize,
         search: this.queryParam.query,
         gender: this.queryParam.gender,
         is_admin: this.queryParam.is_admin,
         status: this.queryParam.status
-
       })
       this.data = res.data.data
       this.pagination.total = res.data.total
@@ -411,12 +431,12 @@ export default {
     },
     initFormData () {
       this.$nextTick(() => {
-      this.form.setFieldsValue({
-        gender: 2,
-        is_admin: 0,
-        status: 1
+        this.form.setFieldsValue({
+          gender: 1,
+          is_admin: 0,
+          status: 1
+        })
       })
-  })
     }
   },
   mounted () {
