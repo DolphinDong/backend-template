@@ -22,7 +22,7 @@
               </a-select>
             </a-form-item>
           </a-col>
-          <a-col :md="8" :sm="24">
+          <!-- <a-col :md="8" :sm="24">
             <a-form-item label="管理员">
               <a-select
                 placeholder="请选择"
@@ -34,7 +34,7 @@
                 <a-select-option value="1">是</a-select-option>
               </a-select>
             </a-form-item>
-          </a-col>
+          </a-col> -->
           <a-col :md="8" :sm="24">
             <a-form-item label="状态">
               <a-select placeholder="请选择" v-model="queryParam.status">
@@ -96,13 +96,13 @@
           :text="getStatusInfo(userStatus).text"
         />
       </span>
-      <span slot="is_admin" slot-scope="is_admin">
+      <!-- <span slot="is_admin" slot-scope="is_admin">
         <a-badge
           v-if="is_admin === false || is_admin === true"
           :status="getIsAdminInfo(is_admin).type"
           :text="getIsAdminInfo(is_admin).text"
         />
-      </span>
+      </span> -->
       <span slot="last_login_time" slot-scope="last_login_time">
         {{ last_login_time | timeFomaterFilter2 }}
       </span>
@@ -119,7 +119,10 @@
         <a-dropdown v-if="$auth(userApi + '.put') || $auth(userApi + '.delete')">
           <a-menu slot="overlay">
             <!-- <a-menu-item v-if="$auth(userApi + '.put')"><a>编辑</a></a-menu-item> -->
-            <a-menu-item v-if="$auth(userApi + '.put')"><a>重置密码</a></a-menu-item>
+            <a-menu-item
+              v-if="$auth(resetPwdAPi + '.put')"
+            ><a @click="resetPwd(record)">重置密码</a></a-menu-item
+            >
             <a-menu-item
               v-if="$auth(userApi + '.delete')"
             ><a style="color: red">删除</a></a-menu-item
@@ -144,7 +147,15 @@
           <a-input
             v-decorator="[
               'username',
-              { rules: [{ pattern: /^.{2,10}$/, required: true, message: '请输入正确的姓名：长度为2-10' }] },
+              {
+                rules: [
+                  {
+                    pattern: /^.{2,10}$/,
+                    required: true,
+                    message: '请输入正确的姓名：长度为2-10',
+                  },
+                ],
+              },
             ]"
             placeholder="请输入姓名"
           />
@@ -154,7 +165,15 @@
             :disabled="disableInput"
             v-decorator="[
               'login_name',
-              { rules: [{ pattern: /^[a-zA-Z0-9]{4,20}$/,required: true, message: '请输入正确的登录名：数组字母组成且长度为4-20' }] },
+              {
+                rules: [
+                  {
+                    pattern: /^[a-zA-Z0-9]{4,20}$/,
+                    required: true,
+                    message: '请输入正确的登录名：数组字母组成且长度为4-20',
+                  },
+                ],
+              },
             ]"
             placeholder="请输入登录名"
           />
@@ -174,7 +193,15 @@
           <a-input
             v-decorator="[
               'phone_number',
-              { rules: [{ pattern: /^1[3456789]\d{9}$/,required: true, message: '请输入正确的手机号' }] },
+              {
+                rules: [
+                  {
+                    pattern: /^1[3456789]\d{9}$/,
+                    required: true,
+                    message: '请输入正确的手机号',
+                  },
+                ],
+              },
             ]"
             placeholder="请输入手机号"
           />
@@ -183,12 +210,12 @@
           <a-input
             v-decorator="[
               'email',
-              { rules: [{ required: true,type: 'email', message: '请输入正确的邮箱' }] },
+              { rules: [{ required: true, type: 'email', message: '请输入正确的邮箱' }] },
             ]"
             placeholder="请输入邮箱"
           />
         </a-form-item>
-        <a-form-item label="管理员">
+        <!-- <a-form-item label="管理员">
           <a-radio-group
             v-decorator="[
               'is_admin',
@@ -198,7 +225,7 @@
             <a-radio :value="1"> 是 </a-radio>
             <a-radio :value="0"> 否 </a-radio>
           </a-radio-group>
-        </a-form-item>
+        </a-form-item> -->
         <a-form-item label="状态">
           <a-radio-group
             v-decorator="[
@@ -217,7 +244,7 @@
 
 <script>
 import APIS from '@/api/url'
-import { getUsers, addUser } from '@/api/user'
+import { getUsers, addUser, updateUser, resetUserPwd } from '@/api/user'
 
 const genderMap = {
   1: {
@@ -275,11 +302,11 @@ const columns = [
     title: '邮箱',
     dataIndex: 'email'
   },
-  {
-    title: '管理员',
-    dataIndex: 'is_admin',
-    scopedSlots: { customRender: 'is_admin' }
-  },
+  // {
+  //   title: '管理员',
+  //   dataIndex: 'is_admin',
+  //   scopedSlots: { customRender: 'is_admin' }
+  // },
   {
     title: '状态',
     dataIndex: 'status',
@@ -314,6 +341,7 @@ export default {
       disableInput: false,
       columns,
       userApi: APIS.BaseUrl + APIS.userApi.user,
+      resetPwdAPi: APIS.BaseUrl + APIS.userApi.resetPwd,
       loadingTable: false,
       queryParam: {
         gender: '3',
@@ -384,14 +412,17 @@ export default {
           return
         }
         values.status = values.status === 1
-        values.is_admin = values.is_admin === 1
+        // values.is_admin = values.is_admin === 1
 
         this.confirmLoading = true
         let data = {}
         try {
           // 编辑
           if (this.editRecord.id) {
-          } else { // 新增
+            values.id = this.editRecord.id
+            data = await updateUser(values)
+          } else {
+            // 新增
             data = await addUser(values)
           }
         } catch (e) {
@@ -428,7 +459,7 @@ export default {
       this.$nextTick(() => {
         this.form.setFieldsValue({
           gender: record.gender,
-          is_admin: record.is_admin === true ? 1 : 0,
+          //         is_admin: record.is_admin === true ? 1 : 0,
           status: record.status === true ? 1 : 0,
           username: record.username,
           login_name: record.login_name,
@@ -439,6 +470,26 @@ export default {
 
       this.visible = true
     },
+    resetPwd (record) {
+      this.$confirm({
+        title: '是否确认重置密码？',
+        content: '重置后密码为: 123456',
+        okText: '确认',
+        cancelText: '取消',
+        onOk: async () => {
+          let data = {}
+          try {
+            data = await resetUserPwd({ id: record.id })
+          } catch (e) {
+            return
+          }
+          if (data.code && data.code === 20001) {
+            this.$message.success('重置成功')
+            // this.queryUser()
+          }
+        }
+      })
+    },
     async queryUser () {
       this.loadingTable = true
       const res = await getUsers({
@@ -446,7 +497,7 @@ export default {
         page_size: this.pagination.pageSize,
         search: this.queryParam.query,
         gender: this.queryParam.gender,
-        is_admin: this.queryParam.is_admin,
+        //      is_admin: this.queryParam.is_admin,
         status: this.queryParam.status
       })
       this.data = res.data.data
@@ -457,7 +508,7 @@ export default {
       this.$nextTick(() => {
         this.form.setFieldsValue({
           gender: 1,
-          is_admin: 0,
+          //       is_admin: 0,
           status: 1
         })
       })

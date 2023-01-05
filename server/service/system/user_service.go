@@ -3,10 +3,12 @@ package system
 import (
 	"github.com/DolphinDong/backend-template/common/constant"
 	"github.com/DolphinDong/backend-template/common/structs"
+	"github.com/DolphinDong/backend-template/global"
 	"github.com/DolphinDong/backend-template/model/dao/system"
 	"github.com/DolphinDong/backend-template/model/model"
 	"github.com/DolphinDong/backend-template/tools"
 	"github.com/pkg/errors"
+	"gorm.io/gorm"
 )
 
 type UserService struct {
@@ -80,13 +82,52 @@ func (us *UserService) GetPermissionsMap(userId string) (permissionsMap map[stri
 	return
 }
 
-func (us *UserService) GetUsers(query *structs.TableQuery, gender, isAdmin, status string) (tableResponse *structs.TableResponse, err error) {
+func (us *UserService) GetUsers(query *structs.TableQuery, gender, status string) (tableResponse *structs.TableResponse, err error) {
 	tableResponse = new(structs.TableResponse)
-	users, total, err := us.UserDao.QueryUser(query.Page, query.PageSize, query.Search, gender, isAdmin, status)
+	users, total, err := us.UserDao.QueryUser(query.Page, query.PageSize, query.Search, gender, status)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	tableResponse.Data = users
 	tableResponse.Total = total
+	return
+}
+
+func (us *UserService) AddUser(user *model.User) (err error) {
+	user.ID = tools.GetUUID()
+	user.Password = tools.GetEncryptedPassword(tools.MD5Str(constant.UserDefaultPassword))
+	// 确保数据一致性
+	err = global.DB.Transaction(func(tx *gorm.DB) error {
+		err = us.UserDao.AddUser(tx, user)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		_, err = global.Enforcer.AddGroupingPolicy(user.ID, constant.UserDefaultRole)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	return
+}
+
+func (us *UserService) UpdateUser(user *model.User) (err error) {
+	err = us.UserDao.UpdateUserInfo(user)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	return
+}
+
+func (us *UserService) ResetUserPassword(user *model.User) (err error) {
+	user.Password = tools.GetEncryptedPassword(tools.MD5Str(constant.UserDefaultPassword))
+	err = us.UserDao.UpdateUserPassword(user)
+	if err != nil {
+		return errors.WithStack(err)
+	}
 	return
 }

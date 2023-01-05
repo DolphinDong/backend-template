@@ -16,16 +16,16 @@ type CasbinRule struct {
 }
 
 type User struct {
-	ID            string `gorm:"primaryKey;size:50" json:"id" `
-	LoginName     string `gorm:"size:50;not null;comment:用户ID;unique" json:"login_name" validate:"min=4,max=20,required"`
-	Username      string `gorm:"size:255;not null;comment:用户名" json:"username" validate:"min=2,max=10,required"`
-	Gender        int    `gorm:"size:5;comment:性别" json:"gender" validate:"required,oneof=1 2"`
-	Avatar        string `gorm:"size:255;comment:头像地址" json:"avatar"`
-	PhoneNumber   string `gorm:"size:11;not null;comment:手机号码;unique" json:"phone_number" validate:"len=11,required"`
-	Password      string `gorm:"size:255;not null;comment:密码" json:"-"`
-	Email         string `gorm:"size:50;not null;comment:邮箱" json:"email" validate:"email,required"`
-	IsAdmin       bool   `gorm:"comment:是否是超级管理员;default:false" json:"is_admin"`
-	Status        bool   `gorm:"comment:状态;default:true" json:"status"`
+	ID          string `gorm:"primaryKey;size:50" json:"id" `
+	LoginName   string `gorm:"size:50;not null;comment:用户ID;unique" json:"login_name" validate:"min=4,max=20,required"`
+	Username    string `gorm:"size:255;not null;comment:用户名" json:"username" validate:"min=2,max=10,required"`
+	Gender      int    `gorm:"size:5;comment:性别" json:"gender" validate:"required,oneof=1 2"`
+	Avatar      string `gorm:"size:255;comment:头像地址" json:"avatar"`
+	PhoneNumber string `gorm:"size:11;not null;comment:手机号码;unique" json:"phone_number" validate:"len=11,required"`
+	Password    string `gorm:"size:255;not null;comment:密码" json:"-"`
+	Email       string `gorm:"size:50;not null;comment:邮箱" json:"email" validate:"email,required"`
+	//IsAdmin       bool   `gorm:"comment:是否是超级管理员;default:false" json:"is_admin"`
+	Status        bool   `gorm:"comment:状态" json:"status"`
 	LastLoginTime int64  `gorm:"comment:上次登录时间;" json:"last_login_time"`
 	LastLoginIp   string `gorm:"comment:上次登录Ip;size:50" json:"last_login_ip"`
 	Role          map[string]interface {

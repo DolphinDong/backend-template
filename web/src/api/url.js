@@ -23,7 +23,8 @@ const manageApi = {
     orgTree: '/org/tree'
   }
 const userApi = {
-    user: '/system/user'
+    user: '/system/user',
+    resetPwd: '/system/user/resetPwd'
 }
 
 const APIS = {

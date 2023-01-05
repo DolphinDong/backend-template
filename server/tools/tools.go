@@ -3,6 +3,7 @@ package tools
 import (
 	"github.com/DolphinDong/backend-template/global"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"strings"
 )
@@ -23,4 +24,10 @@ func Validate(struc interface{}) error {
 		return errors.New(msg)
 	}
 	return nil
+}
+
+func GetUUID() (uuidStr string) {
+	u := uuid.New()
+	key := u.String()
+	return key
 }

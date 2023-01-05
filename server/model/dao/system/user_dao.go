@@ -23,7 +23,7 @@ func (ud *UserDao) QueryUserInfoByUserID(userId string) (userInfo *model.User, e
 	return
 }
 
-func (ud *UserDao) QueryUser(page int, size int, search, gender, isAdmin, status string) (users []*model.User, total int64, err error) {
+func (ud *UserDao) QueryUser(page int, size int, search, gender, status string) (users []*model.User, total int64, err error) {
 	result := ud.Model(&model.User{})
 	if search != "" {
 		result.Where("login_name like ? or  username like ? or phone_number like ? or email like ?", fmt.Sprintf("%%%v%%", search),
@@ -33,9 +33,9 @@ func (ud *UserDao) QueryUser(page int, size int, search, gender, isAdmin, status
 	if gender == "1" || gender == "2" {
 		result.Where("gender=?", gender)
 	}
-	if isAdmin == "1" || isAdmin == "0" {
-		result.Where("is_admin=?", isAdmin)
-	}
+	//if isAdmin == "1" || isAdmin == "0" {
+	//	result.Where("is_admin=?", isAdmin)
+	//}
 	if status == "1" || status == "0" {
 		result.Where("status=?", status)
 	}
@@ -50,7 +50,7 @@ func (ud *UserDao) QueryUser(page int, size int, search, gender, isAdmin, status
 }
 
 func (ud *UserDao) QueryUserByLoginNameAndPwd(loginName, password string) (user *model.User, err error) {
-	err = ud.Where("login_name=?", loginName).Where("password=?", password).First(&user).Error
+	err = ud.Where("status=?", 1).Where("login_name=?", loginName).Where("password=?", password).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -62,6 +62,30 @@ func (ud *UserDao) QueryUserByLoginNameAndPwd(loginName, password string) (user 
 
 func (ud *UserDao) UpdateUserLoginInfo(user *model.User) error {
 	if err := ud.Select("last_login_ip", "last_login_time").Updates(user).Error; err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
+}
+
+func (ud *UserDao) AddUser(db *gorm.DB, user *model.User) error {
+	err := db.Select("*").Create(user).Error
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
+}
+
+func (ud *UserDao) UpdateUserInfo(user *model.User) error {
+	if err := ud.Select("username", "gender", "phone_number", "email", "status").
+		Updates(user).Error; err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
+}
+
+func (ud *UserDao) UpdateUserPassword(user *model.User) error {
+	if err := ud.Select("password").
+		Updates(user).Error; err != nil {
 		return errors.WithStack(err)
 	}
 	return nil
