@@ -506,6 +506,11 @@ export default {
           }
           if (data.code && data.code === 20001) {
             this.$message.success('删除成功')
+            // 如果为本业最后一个则返回到上一页
+            if (this.data.length === 1) {
+              // this.pagination.current = this.pagination.current > 1 ? this.pagination.current - 1 : 1
+              this.pagination.current = 1
+            }
             this.queryUser()
           }
         }
