@@ -32,3 +32,11 @@ export function resetUserPwd (data) {
     data: data
   })
 }
+
+export function deleteUser (data) {
+  return request({
+    url: APIS.userApi.user,
+    method: 'delete',
+    data: data
+  })
+}

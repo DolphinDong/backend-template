@@ -96,7 +96,6 @@ func (us *UserService) GetUsers(query *structs.TableQuery, gender, status string
 func (us *UserService) AddUser(user *model.User) (err error) {
 	user.ID = tools.GetUUID()
 	user.Password = tools.GetEncryptedPassword(tools.MD5Str(constant.UserDefaultPassword))
-	// 确保数据一致性
 	err = global.DB.Transaction(func(tx *gorm.DB) error {
 		err = us.UserDao.AddUser(tx, user)
 		if err != nil {
@@ -126,6 +125,31 @@ func (us *UserService) UpdateUser(user *model.User) (err error) {
 func (us *UserService) ResetUserPassword(user *model.User) (err error) {
 	user.Password = tools.GetEncryptedPassword(tools.MD5Str(constant.UserDefaultPassword))
 	err = us.UserDao.UpdateUserPassword(user)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	return
+}
+
+func (us *UserService) DeleteUser(userId string) (err error) {
+
+	err = global.DB.Transaction(func(tx *gorm.DB) error {
+		err2 := us.UserDao.DeleteUserById(tx, userId)
+		if err2 != nil {
+			return errors.WithStack(err)
+		}
+		// 删除用户的权限
+		_, err2 = global.Enforcer.RemoveFilteredPolicy(0, userId)
+		if err2 != nil {
+			return errors.WithStack(err)
+		}
+		// 删除用户的角色
+		_, err2 = global.Enforcer.RemoveNamedGroupingPolicy("g", userId)
+		if err2 != nil {
+			return errors.WithStack(err)
+		}
+		return nil
+	})
 	if err != nil {
 		return errors.WithStack(err)
 	}

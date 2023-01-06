@@ -125,7 +125,7 @@
             >
             <a-menu-item
               v-if="$auth(userApi + '.delete')"
-            ><a style="color: red">删除</a></a-menu-item
+            ><a style="color: red" @click="deleteUser(record)">删除</a></a-menu-item
             >
           </a-menu>
           <a>更多<a-icon type="down" /></a>
@@ -244,7 +244,7 @@
 
 <script>
 import APIS from '@/api/url'
-import { getUsers, addUser, updateUser, resetUserPwd } from '@/api/user'
+import { getUsers, addUser, updateUser, resetUserPwd, deleteUser } from '@/api/user'
 
 const genderMap = {
   1: {
@@ -486,6 +486,27 @@ export default {
           if (data.code && data.code === 20001) {
             this.$message.success('重置成功')
             // this.queryUser()
+          }
+        }
+      })
+    },
+    deleteUser (record) {
+      this.$confirm({
+        title: '是否确认要删除该用户？',
+        content: '删除之后将无法恢复',
+        okText: '确认',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk: async () => {
+          let data = {}
+          try {
+            data = await deleteUser({ id: record.id })
+          } catch (e) {
+            return
+          }
+          if (data.code && data.code === 20001) {
+            this.$message.success('删除成功')
+            this.queryUser()
           }
         }
       })

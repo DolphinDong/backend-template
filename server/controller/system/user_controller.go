@@ -124,3 +124,31 @@ func (uc *UserController) ResetUserPwd(ctx *gin.Context) {
 	}
 	response.ResponseOkWithMessage(ctx, "重置成功")
 }
+
+func (uc *UserController) DeleteUser(ctx *gin.Context) {
+	user := &model.User{}
+	err := ctx.ShouldBind(user)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "reset user password failed"))
+		response.ResponseHttpError(ctx, "获取用户信息失败")
+		return
+	}
+	if user.ID == "" {
+		global.Logger.Errorf("%+v", "missing parameter: id")
+		response.ResponseHttpErrorWithInfo(ctx, "missing parameter: id")
+		return
+	}
+	currentUserId, _ := ctx.Get(constant.UserContextKey)
+	if user.ID == currentUserId {
+		global.Logger.Errorf("%+v", "无法删除当前登录用户")
+		response.ResponseHttpErrorWithInfo(ctx, "无法删除当前登录用户")
+		return
+	}
+	err = uc.UserService.DeleteUser(user.ID)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "delete user failed"))
+		response.ResponseHttpError(ctx, "删除失败"+err.Error())
+		return
+	}
+	response.ResponseOkWithMessage(ctx, "删除成功")
+}

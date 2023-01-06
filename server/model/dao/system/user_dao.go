@@ -91,6 +91,13 @@ func (ud *UserDao) UpdateUserPassword(user *model.User) error {
 	return nil
 }
 
+func (ud *UserDao) DeleteUserById(db *gorm.DB, id string) (err error) {
+	if err = db.Unscoped().Where("id=?", id).Delete(&model.User{}).Error; err != nil {
+		return errors.WithStack(err)
+	}
+	return
+}
+
 func NewUserDao() *UserDao {
 	return &UserDao{
 		global.DB,
