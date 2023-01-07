@@ -98,6 +98,13 @@ func (ud *UserDao) DeleteUserById(db *gorm.DB, id string) (err error) {
 	return
 }
 
+func (ud *UserDao) DeleteUserPermissionById(db *gorm.DB, id string) (err error) {
+	if err = db.Table("casbin_rule").Where("v0=?", id).Delete(&model.CasbinRule{}).Error; err != nil {
+		return errors.WithStack(err)
+	}
+	return
+}
+
 func NewUserDao() *UserDao {
 	return &UserDao{
 		global.DB,

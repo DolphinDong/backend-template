@@ -138,16 +138,21 @@ func (us *UserService) DeleteUser(userId string) (err error) {
 		if err2 != nil {
 			return errors.WithStack(err)
 		}
-		// 删除用户的权限
-		_, err2 = global.Enforcer.RemoveFilteredPolicy(0, userId)
+		// 采用sql的方式直接删除用户的角色和权限
+		err2 = us.UserDao.DeleteUserPermissionById(tx, userId)
 		if err2 != nil {
 			return errors.WithStack(err)
 		}
-		// 删除用户的角色
-		_, err2 = global.Enforcer.RemoveNamedGroupingPolicy("g", userId)
-		if err2 != nil {
-			return errors.WithStack(err)
-		}
+		//// 删除用户的权限
+		//_, err2 = global.Enforcer.RemoveFilteredPolicy(0, userId)
+		//if err2 != nil {
+		//	return errors.WithStack(err)
+		//}
+		//// 删除用户的角色
+		//_, err2 = global.Enforcer.RemoveNamedGroupingPolicy("g", userId)
+		//if err2 != nil {
+		//	return errors.WithStack(err)
+		//}
 		return nil
 	})
 	if err != nil {
