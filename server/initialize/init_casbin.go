@@ -3,9 +3,9 @@ package initialize
 import (
 	"github.com/DolphinDong/backend-template/global"
 	model3 "github.com/DolphinDong/backend-template/model/model"
+	"github.com/casbin/casbin/v2"
 	"strings"
 
-	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 )
@@ -40,7 +40,7 @@ m = g(r.sub, p.sub) && keyMatch4(r.obj , p.obj) && method_match(r.act , p.act)
 	if err != nil {
 		global.Logger.Fatalf("error: model: %+v", err)
 	}
-	global.Enforcer, err = casbin.NewEnforcer(m, adapter)
+	global.Enforcer, err = casbin.NewSyncedEnforcer(m, adapter)
 	if err != nil {
 		global.Logger.Fatalf("error: enforcer: %+v", err)
 	}

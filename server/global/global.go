@@ -13,6 +13,6 @@ var (
 	Logger          *logrus.Logger
 	DB              *gorm.DB
 	RedisPool       *redis.Pool
-	Enforcer        *casbin.Enforcer
+	Enforcer        *casbin.SyncedEnforcer
 	GlobalValidator = validator.New()
 )
