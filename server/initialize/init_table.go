@@ -16,6 +16,7 @@ func Migrate() {
 		&model.MenuMeta{},
 		&model.Permission{},
 		&model.User{},
+		&model.Role{},
 	)
 	tools.CheckErr(errors.Wrap(err, "migrate error"))
 	global.Logger.Info("migrate success !!!")

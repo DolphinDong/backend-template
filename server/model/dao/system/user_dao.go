@@ -92,6 +92,9 @@ func (ud *UserDao) UpdateUserPassword(user *model.User) error {
 }
 
 func (ud *UserDao) DeleteUserById(db *gorm.DB, id string) (err error) {
+	if db == nil {
+		db = ud.DB
+	}
 	if err = db.Unscoped().Where("id=?", id).Delete(&model.User{}).Error; err != nil {
 		return errors.WithStack(err)
 	}
@@ -99,6 +102,9 @@ func (ud *UserDao) DeleteUserById(db *gorm.DB, id string) (err error) {
 }
 
 func (ud *UserDao) DeleteUserPermissionById(db *gorm.DB, id string) (err error) {
+	if db == nil {
+		db = ud.DB
+	}
 	if err = db.Table("casbin_rule").Where("v0=?", id).Delete(&model.CasbinRule{}).Error; err != nil {
 		return errors.WithStack(err)
 	}

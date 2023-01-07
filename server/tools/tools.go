@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"fmt"
 	"github.com/DolphinDong/backend-template/global"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
@@ -30,4 +31,8 @@ func GetUUID() (uuidStr string) {
 	u := uuid.New()
 	key := u.String()
 	return key
+}
+
+func GetQueryString(query string) string {
+	return fmt.Sprintf("%%%v%%", query)
 }

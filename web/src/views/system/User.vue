@@ -116,7 +116,7 @@
       <span slot="action" slot-scope="text, record">
         <a v-if="$auth(userApi + '.put')" @click="updateUser(record)">编辑</a>
         <a-divider type="vertical" />
-        <a-dropdown v-if="$auth(userApi + '.put') || $auth(userApi + '.delete')">
+        <a-dropdown v-if="$auth(resetPwdAPi + '.put') || $auth(userApi + '.delete')">
           <a-menu slot="overlay">
             <!-- <a-menu-item v-if="$auth(userApi + '.put')"><a>编辑</a></a-menu-item> -->
             <a-menu-item
@@ -354,7 +354,7 @@ export default {
         pageSizeOptions: ['10', '20', '30', '40', '50'],
         current: 1,
         pageSize: 10,
-        total: 1000,
+        total: 0,
         showSizeChanger: true,
         showTotal: (total) => `共${total}条`,
         onChange: (page, size) => {
@@ -441,7 +441,6 @@ export default {
     },
     handleCancel (e) {
       this.form.resetFields()
-      console.log('Clicked cancel button')
       this.visible = false
     },
     addUser () {
@@ -456,7 +455,7 @@ export default {
       this.editRecord = record
       this.disableInput = true
       this.ModalText = '编辑用户信息'
-      this.$nextTick(() => {
+      // this.$nextTick(() => {
         this.form.setFieldsValue({
           gender: record.gender,
           //         is_admin: record.is_admin === true ? 1 : 0,
@@ -466,7 +465,7 @@ export default {
           phone_number: record.phone_number,
           email: record.email
         })
-      })
+     // })
 
       this.visible = true
     },
@@ -518,6 +517,7 @@ export default {
     },
     async queryUser () {
       this.loadingTable = true
+      try {
       const res = await getUsers({
         page: this.pagination.current,
         page_size: this.pagination.pageSize,
@@ -529,15 +529,20 @@ export default {
       this.data = res.data.data
       this.pagination.total = res.data.total
       this.loadingTable = false
+    } catch (e) {
+
+      } finally {
+        this.loadingTable = false
+      }
     },
     initFormData () {
-      this.$nextTick(() => {
+     this.$nextTick(() => {
         this.form.setFieldsValue({
           gender: 1,
           //       is_admin: 0,
           status: 1
         })
-      })
+     })
     }
   },
   mounted () {

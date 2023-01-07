@@ -24,6 +24,12 @@ func registerRouter(engine *gin.Engine) {
 			systemApi.DELETE("/user", userController.DeleteUser)
 			systemApi.PUT("/user/resetPwd", userController.ResetUserPwd)
 
+			roleController := system.NewRoleController()
+			systemApi.GET("/role", roleController.GetRoles)
+			systemApi.POST("/role", roleController.AddRole)
+			systemApi.PUT("/role", roleController.UpdateRole)
+			systemApi.DELETE("/role", roleController.DeleteRole)
+
 			loginController := system.NewLoginController()
 			systemApi.POST("/login", loginController.Login)
 		}

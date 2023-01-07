@@ -36,7 +36,7 @@ type User struct {
 // 角色表
 type Role struct {
 	ID           uint   `gorm:"primaryKey;autoIncrement" json:"id,string"`
-	RoleName     string `gorm:"size:100;comment:角色名称;not null;uniqueIndex" json:"role_name"`
-	RoleIdentify string `gorm:"size:100;comment:角色标识;not null;uniqueIndex" json:"role_identify"`
-	gorm.Model
+	RoleName     string `gorm:"size:100;comment:角色名称;not null;uniqueIndex" json:"role_name" validate:"min=2,max=30,required"`
+	RoleIdentify string `gorm:"size:100;comment:角色标识;not null;uniqueIndex" json:"role_identify" validate:"min=4,max=30,required"`
+	gorm.Model   `json:"-"`
 }

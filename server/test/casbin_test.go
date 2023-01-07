@@ -30,9 +30,8 @@ func TestCasbin(t *testing.T) {
 	//	log.Fatal(err)
 	//}
 	//fmt.Printf("校验结果：%v",enforce)
-
-	fmt.Println(QueryPermissionByUserID("liudong"))
-	fmt.Println(QueryPermissionByRoleID("data3_admin"))
+	res, err := global.Enforcer.Enforce("c5c471fd-07ee-426a-bb7a-b3ede8804d71", "role", "show_menu")
+	fmt.Println(res, err)
 }
 
 func QueryPermissionByUserID(userid string) map[string][]string {

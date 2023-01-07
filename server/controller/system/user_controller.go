@@ -10,6 +10,7 @@ import (
 	"github.com/DolphinDong/backend-template/tools"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+	"strings"
 )
 
 type UserController struct {
@@ -49,6 +50,7 @@ func (uc *UserController) GetUsers(ctx *gin.Context) {
 	if query.Page == 0 {
 		query.PageSize = 1
 	}
+	query.Search = strings.TrimSpace(query.Search)
 	gender := ctx.Query("gender")
 	//isAdmin := ctx.Query("is_admin")
 	status := ctx.Query("status")
@@ -97,6 +99,11 @@ func (uc *UserController) UpdateUser(ctx *gin.Context) {
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "validate parameter failed"))
 		response.ResponseHttpErrorWithInfo(ctx, err.Error())
+		return
+	}
+	if user.ID == "" {
+		global.Logger.Errorf("%+v", errors.New("validate parameter failed: id"))
+		response.ResponseHttpErrorWithInfo(ctx, "Invalid parameter: id")
 		return
 	}
 	err = uc.UserService.UpdateUser(user)
