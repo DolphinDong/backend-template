@@ -29,12 +29,15 @@ const userApi = {
 const roleApi = {
   role: '/system/role'
 }
-
+const menuApi = {
+  menu: '/system/menu'
+}
 const APIS = {
   BaseUrl: process.env.VUE_APP_API_BASE_URL,
   loginApi,
   userApi,
   manageApi,
-  roleApi
+  roleApi,
+  menuApi
 }
 export default APIS
