@@ -6,7 +6,8 @@
         rowKey="id"
         :columns="columns"
         :data-source="data"
-        :expanded-row-keys.sync="expandedRowKeys"
+        :expanded-row-keys.sync="expandedRowIds"
+        :loading="loadingTable"
       >
         <span slot="name" slot-scope="name, record">
           <a-tag color="green">
@@ -43,6 +44,8 @@
 
 <script>
 import APIS from '@/api/url'
+import { getMenus } from '@/api/menu'
+
 const columns = [
   {
     title: '标题',
@@ -91,31 +94,36 @@ const columns = [
     scopedSlots: { customRender: 'action' }
   }
 ]
-const data = [
-  {
-    id: 1,
-    title: '菜单管理',
-    name: 'menu',
-    type: 1,
-    children: [
-        {
-            id: 2,
-            title: '删除菜单',
-            name: '/api/system/menu : delete',
-            type: 2
-        }
-    ]
-  }
-]
 export default {
-    name: 'Menu',
-    data () {
+  name: 'Menu',
+  data () {
     return {
-      menuApi: APIS.BaseUrl + APIS.menuApi.menu,
-      data,
-      columns,
-      expandedRowKeys: [1, 2]
+        loadingTable: false,
+        menuApi: APIS.BaseUrl + APIS.menuApi.menu,
+        data: [],
+        columns,
+        expandedRowIds: [1, 2]
     }
+  },
+  methods: {
+    async queryMenus () {
+        try {
+            this.loadingTable = true
+            const res = await getMenus({})
+            const data = res.data
+            if (data) {
+                this.data = data.menu_tree
+                this.expandedRowIds = data.menu_ids
+            }
+        } catch (e) {
+
+        } finally {
+            this.loadingTable = false
+        }
+    }
+  },
+  mounted () {
+    this.queryMenus()
   }
 
 }

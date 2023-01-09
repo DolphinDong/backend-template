@@ -33,9 +33,11 @@ type MenuAndPermission struct {
 	HideChildren        bool   `json:"hideChildren"`
 	HiddenHeaderContent bool   `json:"hiddenHeaderContent"`
 
-	Describe string `json:"describe"`
-	Identify string `json:"identify"`
-	Action   string `json:"action"`
+	Describe string               `json:"describe"`
+	Identify string               `json:"identify"`
+	Action   string               `json:"action"`
+	Type     int                  `json:"type,omitempty"`
+	Children []*MenuAndPermission `json:"children,omitempty" gorm:"-"`
 }
 
 func (md *MenuDao) QueryAllMenuAndPermission() (menuAndPermission []*MenuAndPermission, err error) {
@@ -93,6 +95,37 @@ func (md *MenuDao) QueryMenuPermissionsByMenuID(menuId int) (permissions []*mode
 	}
 	if result.RowsAffected == 0 {
 		return nil, nil
+	}
+	return
+}
+
+func (md *MenuDao) QueryAllMenus() (allMenus []*MenuAndPermission, err error) {
+	sql := `SELECT
+	t1.*,
+	t2.title,
+	t2.icon,
+	t2.target,
+	t2.SHOW,
+	t2.hide_children,
+	t2.hidden_header_content,
+	1 as type
+FROM
+	system_menus AS t1
+	LEFT JOIN menu_meta AS t2 ON t1.id = t2.menu_id
+`
+	result := md.Raw(sql).Scan(&allMenus)
+	if result.Error != nil {
+		return nil, errors.WithStack(result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+	return
+}
+
+func (md *MenuDao) QueryAllPermission() (permissions []*model2.Permission, err error) {
+	if err = md.Find(&permissions).Error; err != nil {
+		return nil, errors.WithStack(err)
 	}
 	return
 }

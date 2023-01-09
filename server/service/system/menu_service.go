@@ -1,12 +1,17 @@
 package system
 
 import (
+	"fmt"
 	"github.com/DolphinDong/backend-template/common/constant"
 	"github.com/DolphinDong/backend-template/model/dao/system"
 	model2 "github.com/DolphinDong/backend-template/model/model"
 	"github.com/DolphinDong/backend-template/tools"
 	"github.com/pkg/errors"
 	"sort"
+)
+
+const (
+	PermissionType = 2
 )
 
 type MenuService struct {
@@ -115,6 +120,85 @@ func (ms *MenuService) GetUserMenu2(userId string) (menus []*model2.SystemMenu, 
 		}
 		menu.Permission = tools.RemoveDuplicateElement(p)
 		menus = append(menus, menu)
+	}
+	return
+}
+
+func (ms *MenuService) GetMenus() (menuTree []*system.MenuAndPermission, menuIds []int, err error) {
+	allMenus, err := ms.MenuDao.QueryAllMenus()
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	allPermission, err := ms.MenuDao.QueryAllPermission()
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	allMenus = ms.AppendMenuPermissions(allMenus, allPermission)
+	menuTree = ms.BuildMenuTree(0, allMenus)
+	// 获取所有菜单的ID, 方便前端展开树状结构
+	for _, m := range allMenus {
+		if m.ParentId == 0 {
+			menuIds = append(menuIds, m.ID)
+		}
+
+	}
+	return
+}
+
+// 给菜单添加上子权限
+func (ms *MenuService) AppendMenuPermissions(menus []*system.MenuAndPermission, permissions []*model2.Permission) []*system.MenuAndPermission {
+	result := make([]*system.MenuAndPermission, 0, len(menus))
+	restPermission := permissions
+	var menuPermissions []*model2.Permission
+	for _, menu := range menus {
+		menuPermissions, restPermission = ms.PickMenuPermissions(menu.ID, restPermission)
+		permissions = restPermission
+		menuChildren := make([]*system.MenuAndPermission, 0, len(menuPermissions))
+		for _, menuPermission := range menuPermissions {
+			menuChildren = append(menuChildren, &system.MenuAndPermission{
+				ID:    menuPermission.ID,
+				Type:  PermissionType, // 权限的类型为2
+				Name:  fmt.Sprintf("%v : %v", menuPermission.Identify, menuPermission.Action),
+				Title: menuPermission.Describe,
+			})
+		}
+		menu.Children = menuChildren
+		result = append(result, menu)
+	}
+	// 遍历剩余的
+	for _, p := range restPermission {
+		result = append(result, &system.MenuAndPermission{
+			ID:    p.ID,
+			Type:  PermissionType, // 权限的类型为2
+			Name:  fmt.Sprintf("%v : %v", p.Identify, p.Action),
+			Title: p.Describe,
+		})
+	}
+	return result
+}
+
+// 查询菜单的子权限并返回剩余的权限
+func (ms *MenuService) PickMenuPermissions(menuId int, permissions []*model2.Permission) (menuPermissions, restPermissions []*model2.Permission) {
+	for _, p := range permissions {
+		// 如果当前权限为menuId的子权限则添加到menuPermissions, 否则添加到剩余的权限中restPermissions
+		if p.MenuID == menuId {
+			menuPermissions = append(menuPermissions, p)
+		} else {
+			restPermissions = append(restPermissions, p)
+		}
+	}
+	return
+}
+func (ms *MenuService) BuildMenuTree(menuId int, allMenus []*system.MenuAndPermission) (menuTree []*system.MenuAndPermission) {
+	for _, menu := range allMenus {
+		if menu.ParentId == menuId {
+			if menu.Type == 1 {
+				menu.Children = append(menu.Children, ms.BuildMenuTree(menu.ID, allMenus)...)
+			}
+			menuTree = append(menuTree, menu)
+		}
 	}
 	return
 }

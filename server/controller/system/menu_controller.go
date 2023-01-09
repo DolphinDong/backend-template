@@ -29,3 +29,17 @@ func (mc *MenuController) GetUserMenu(ctx *gin.Context) {
 	}
 	response.ResponseOkWithData(ctx, menu)
 }
+
+func (mc *MenuController) GetMenus(ctx *gin.Context) {
+	menuTree, menuIds, err := mc.MenuService.GetMenus()
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "get menu failed:"))
+		response.ResponseHttpError(ctx, "获取菜单失败")
+		return
+	}
+	response.ResponseOkWithData(ctx, gin.H{
+		"menu_tree": menuTree,
+		"menu_ids":  menuIds,
+	})
+	return
+}

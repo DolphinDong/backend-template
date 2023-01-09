@@ -12,7 +12,7 @@ const loginApi = {
   // UserMenu: '/user/nav'
 
   UserInfo: '/system/userInfo',
-  UserMenu: '/system/menu'
+  UserMenu: '/system/menus'
 }
 const manageApi = {
   user: '/user',
