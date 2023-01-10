@@ -139,7 +139,7 @@ func (ms *MenuService) GetMenus() (menuTree []*system.MenuAndPermission, menuIds
 	menuTree = ms.BuildMenuTree(0, allMenus)
 	// 获取所有菜单的ID, 方便前端展开树状结构
 	for _, m := range allMenus {
-		if m.ParentId == 0 {
+		if m.ParentId == 0 && m.Type != PermissionType {
 			menuIds = append(menuIds, m.ID)
 		}
 

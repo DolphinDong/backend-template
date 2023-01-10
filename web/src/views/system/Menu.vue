@@ -8,7 +8,12 @@
         :data-source="data"
         :expanded-row-keys.sync="expandedRowIds"
         :loading="loadingTable"
+        size="small"
+        :bordered="false"
       >
+        <span slot="icon" slot-scope="icon,record">
+          <a-icon :type="icon" /> {{ icon }}
+        </span>
         <span slot="name" slot-scope="name, record">
           <a-tag color="green">
             {{ name }}
@@ -112,6 +117,7 @@ export default {
             const res = await getMenus({})
             const data = res.data
             if (data) {
+                this.changePermissionId(data.menu_tree)
                 this.data = data.menu_tree
                 this.expandedRowIds = data.menu_ids
             }
@@ -120,6 +126,16 @@ export default {
         } finally {
             this.loadingTable = false
         }
+    },
+    changePermissionId (menuTree) {
+      menuTree.forEach(element => {
+        if (element.type === 2) {
+          element.id = 'p' + element.id
+        }
+        if (element.children) {
+          this.changePermissionId(element.children)
+        }
+      })
     }
   },
   mounted () {
