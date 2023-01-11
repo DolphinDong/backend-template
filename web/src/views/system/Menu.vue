@@ -69,8 +69,8 @@
         <span v-if="record.type===1">{{ sort }}</span>
       </span>
       <!-- slot-scope="text, record" -->
-      <span slot="action" >
-        <a v-if="$auth(menuApi + '.put')" >编辑</a>
+      <span slot="action" slot-scope="txt,record">
+        <a v-if="$auth(menuApi + '.put')" @click="updateMenu(record)">编辑</a>
         <a-divider type="vertical" />
         <a-dropdown v-if="$auth(menuApi + '.delete')">
           <a-menu slot="overlay">
@@ -84,6 +84,211 @@
       </span>
 
     </a-table>
+    <a-modal
+      :title="ModalText"
+      :visible="visible"
+      :confirm-loading="confirmLoading"
+      @ok="handleOk"
+      @cancel="handleCancel"
+      width="40%"
+      :forceRender="true"
+    >
+      <a-form :form="form" :label-col="{ span: 5 }" :wrapper-col="{ span: 17 }">
+        <a-form-item label="菜单名称">
+          <a-input
+            v-decorator="[
+              'title',
+              {
+                rules: [
+                  {
+                    required: true,
+                    message: '请输入正确的菜单名称',
+                  },
+                ],
+              },
+            ]"
+            placeholder="请输入菜单名称"
+          />
+        </a-form-item>
+        <a-form-item label="菜单标识">
+          <a-input
+            v-decorator="[
+              'name',
+              {
+                rules: [
+                  {
+                    pattern: /^[a-zA-Z0-9_/-]{4,20}$/,
+                    required: true,
+                    message: '请输入正确的菜单标识：数组、字母、下划线、中划线长度为4-20',
+                  },
+                ],
+              },
+            ]"
+            placeholder="请输入菜单标识"
+          />
+        </a-form-item>
+
+        <a-form-item label="父级菜单">
+          <a-select
+            show-search
+            placeholder="请选择父级菜单"
+            option-filter-prop="children"
+            :filter-option="filterOption"
+            v-decorator="[
+              'parentId',
+              { rules: [{ required: true, message: '请选择父级菜单' }] },
+            ]"
+          >
+            <a-select-option :value="0">
+              顶级菜单
+            </a-select-option>
+            <a-select-option v-for="(menu,index) in menus" :value="menu.id" :key="menu.id">
+              {{ menu.title }}
+            </a-select-option>
+
+          </a-select>
+        </a-form-item>
+        <a-form-item label="菜单类型">
+          <a-select
+            show-search
+            placeholder="请选择菜单类型"
+            v-decorator="[
+              'type',
+              { rules: [{ required: true, message: '请选择菜单类型' }] },
+            ]"
+            @change="handleChange"
+          >
+            <a-select-option :value="1">
+              菜单
+            </a-select-option>
+            <a-select-option :value="2">
+              权限
+            </a-select-option>
+          </a-select>
+        </a-form-item>
+        <template v-if="isMenu===true">
+          <a-form-item label="菜单路径">
+            <a-input
+              v-decorator="[
+                'path',
+                {
+                  rules: [
+                    {
+                      pattern: /(^[a-zA-Z0-9_/-]{0,}$)|(^$)/,
+                      message: '请输入正确的菜单路径：数字字母_-/组成长度>4',
+                    },
+                  ],
+                },
+              ]"
+              placeholder="请输入菜单路径"
+            />
+          </a-form-item>
+          <a-form-item label="菜单图标">
+            <a-input
+              v-decorator="[
+                'icon',
+              ]"
+              placeholder="请输入菜单图标"
+            />
+          </a-form-item>
+          <a-form-item label="组件">
+            <a-input
+              v-decorator="[
+                'component',
+                {
+                  rules: [
+                    {
+                      required: true,
+                      message: '请输入正确组件'
+                    },
+                  ],
+                }
+              ]"
+              placeholder="请输入组件"
+            />
+          </a-form-item>
+          <a-form-item label="重定向地址">
+            <a-input
+              v-decorator="[
+                'redirect',
+              ]"
+              placeholder="请输入重定向地址"
+            />
+          </a-form-item>
+          <a-form-item label="Target">
+            <a-select
+              show-search
+              placeholder="请选择菜单Target"
+              v-decorator="[
+                'target',
+              ]"
+            >
+              <a-select-option value="_self">
+                _self
+              </a-select-option>
+              <a-select-option value="_blank">
+                _blank
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+
+          <a-form-item label="是否展示">
+            <a-radio-group
+              v-decorator="[
+                'show',
+                {
+                  rules: [
+                    {
+                      required: true,
+                      message: '请选择是否展示'
+                    },
+                  ],
+                }
+              ]"
+            >
+              <a-radio :value="1"> 是 </a-radio>
+              <a-radio :value="0"> 否 </a-radio>
+            </a-radio-group>
+          </a-form-item>
+          <a-form-item label="排序">
+            <a-input-number
+              :min="1"
+              :max="100"
+              v-decorator="[
+                'sort',
+              ]"
+              placeholder="顺序"
+            />
+          </a-form-item>
+
+        </template>
+        <template v-if="isMenu===false">
+          <a-form-item label="权限标识">
+            <a-select
+              show-search
+              placeholder="请选择权限标识"
+              v-decorator="[
+                'action',
+                { rules: [{ required: true, message: '请选择权限标识' }] },
+              ]"
+            >
+              <a-select-option value="get">
+                GET
+              </a-select-option>
+              <a-select-option value="post">
+                POST
+              </a-select-option>
+              <a-select-option value="put">
+                PUT
+              </a-select-option>
+              <a-select-option value="delete">
+                DELETE
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+        </template>
+      </a-form>
+    </a-modal>
   </a-card>
 </template>
 
@@ -157,14 +362,21 @@ export default {
   name: 'Menu',
   data () {
     return {
-        loadingTable: false,
-        menuApi: APIS.BaseUrl + APIS.menuApi.menu,
-        menuTree: [],
-        columns,
-        data: [],
-        expandedRowIds: [],
-        queryParam: { query: '' },
-        treeOpen: true
+      ModalText: '新增菜单',
+      visible: false,
+      confirmLoading: false,
+      form: this.$form.createForm(this, { name: 'coordinated' }),
+      loadingTable: false,
+      isMenu: null,
+      menuApi: APIS.BaseUrl + APIS.menuApi.menu,
+      menuTree: [],
+      columns,
+      menus: [],
+      data: [],
+      expandedRowIds: [],
+      queryParam: { query: '' },
+      treeOpen: true,
+      editRecord: null
     }
   },
   methods: {
@@ -216,6 +428,17 @@ export default {
           }
       })
     },
+    listMenu (dataList) {
+      dataList.forEach(element => {
+          if (element.type !== 1) {
+            return
+          }
+          this.menus.push({ id: element.id, title: element.title })
+          if (element.children && element.children.length > 0) {
+            this.listMenu(element.children)
+          }
+      })
+    },
     // 递归查找菜单，如果子菜单符合条件同时把父级菜单给展示出来，如果只有父级菜单符合条件则不展示器子菜单
     findMenu (dataList) {
       if (!dataList || dataList.length === 0) {
@@ -250,8 +473,30 @@ export default {
         return result
     },
     addMenu () {
+      this.editRecord = null
+      this.menus = []
+      this.visible = true
+      this.listMenu(this.menuTree)
 
+        this.initForm()
     },
+    updateMenu (record) {
+      this.menus = []
+      this.listMenu(this.menuTree)
+      this.isMenu = record.type
+      this.initForm()
+      this.visible = true
+      this.editRecord = record
+      this.$nextTick(() => {
+          this.form.setFieldsValue({
+            parentId: this.editRecord.parentId,
+            name: this.editRecord.name,
+            title: this.editRecord.title,
+            type: this.editRecord.type
+          })
+          })
+      this.handleChange(record.type)
+        },
     openClose () {
       if (this.treeOpen) {
         this.expandedRowIds = []
@@ -259,7 +504,69 @@ export default {
         this.expandedRow(this.data)
       }
       this.treeOpen = !this.treeOpen
-    }
+    },
+    handleOk (e) {
+      this.form.validateFields(async (err, values) => {
+        if (err) {
+          return
+        }
+        console.log(values)
+        // this.isMenu = null
+      })
+    },
+    handleCancel (e) {
+      this.visible = false
+      this.initForm()
+      this.editRecord = null
+      this.isMenu = null
+    },
+    filterOption (input, option) {
+      return (
+        option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+      )
+    },
+    handleChange (value) {
+      this.isMenu = value === 1
+      // 菜单
+      if (this.isMenu === true) {
+        if (this.editRecord) {
+          this.$nextTick(() => {
+          this.form.setFieldsValue({
+            component: this.editRecord.component,
+            show: this.editRecord.show ? 1 : 0,
+            redirect: this.editRecord.redirect,
+            sort: this.editRecord.sort,
+            icon: this.editRecord.icon,
+            target: this.editRecord.target,
+            path: this.editRecord.path
+          })
+          })
+        } else {
+          this.$nextTick(() => {
+          this.form.setFieldsValue({
+            component: 'RouteView',
+            show: 1
+          })
+      })
+        }
+      } else { // 权限
+        if (this.editRecord) { // 编辑
+          this.$nextTick(() => {
+          this.form.setFieldsValue({
+            action: this.editRecord.action
+          })
+        })
+        }
+      }
+    },
+    initForm () {
+      this.form.resetFields()
+      this.$nextTick(() => {
+      this.form.setFieldsValue({
+        // component: 'RouteView'
+      })
+    })
+  }
   },
   mounted () {
     this.searchMenu(false)

@@ -158,10 +158,11 @@ func (ms *MenuService) AppendMenuPermissions(menus []*system.MenuAndPermission, 
 		menuChildren := make([]*system.MenuAndPermission, 0, len(menuPermissions))
 		for _, menuPermission := range menuPermissions {
 			menuChildren = append(menuChildren, &system.MenuAndPermission{
-				ID:    menuPermission.ID,
-				Type:  PermissionType, // 权限的类型为2
-				Name:  fmt.Sprintf("%v : %v", menuPermission.Identify, menuPermission.Action),
-				Title: menuPermission.Describe,
+				ID:     menuPermission.ID,
+				Type:   PermissionType, // 权限的类型为2
+				Name:   fmt.Sprintf("%v : %v", menuPermission.Identify, menuPermission.Action),
+				Title:  menuPermission.Describe,
+				Action: menuPermission.Action,
 			})
 		}
 		menu.Children = menuChildren
@@ -170,10 +171,11 @@ func (ms *MenuService) AppendMenuPermissions(menus []*system.MenuAndPermission, 
 	// 遍历剩余的
 	for _, p := range restPermission {
 		result = append(result, &system.MenuAndPermission{
-			ID:    p.ID,
-			Type:  PermissionType, // 权限的类型为2
-			Name:  fmt.Sprintf("%v : %v", p.Identify, p.Action),
-			Title: p.Describe,
+			ID:     p.ID,
+			Type:   PermissionType, // 权限的类型为2
+			Name:   fmt.Sprintf("%v : %v", p.Identify, p.Action),
+			Title:  p.Describe,
+			Action: p.Action,
 		})
 	}
 	return result
