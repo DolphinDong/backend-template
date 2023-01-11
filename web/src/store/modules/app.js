@@ -84,6 +84,7 @@ const app = {
   },
   actions: {
     setLang ({ commit }, lang) {
+      lang = 'zh-CN'
       return new Promise((resolve, reject) => {
         commit(APP_LANGUAGE, lang)
         loadLanguageAsync(lang).then(() => {
