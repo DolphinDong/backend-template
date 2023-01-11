@@ -32,6 +32,7 @@
       :expanded-row-keys.sync="expandedRowIds"
       :loading="loadingTable"
       size="small"
+      :scroll="{ x: 1600 }"
       :bordered="false"
     >
       <span slot="icon" slot-scope="icon,record">
@@ -49,6 +50,23 @@
         <a-tag v-if="type===2" color="#f50">
           权限
         </a-tag>
+      </span>
+      <span slot="show" slot-scope="show,record">
+
+        <a-badge
+          v-if="show===true&&record.type==1"
+          status="success"
+          text="是"
+        />
+        <a-badge
+          v-else-if="show===false&&record.type==1"
+          status="error"
+          text="否"
+        />
+      </span>
+
+      <span slot="sort" slot-scope="sort,record">
+        <span v-if="record.type===1">{{ sort }}</span>
       </span>
       <!-- slot-scope="text, record" -->
       <span slot="action" >
@@ -76,29 +94,36 @@ import { getMenus } from '@/api/menu'
 const columns = [
   {
     title: '标题',
-    dataIndex: 'title'
+    dataIndex: 'title',
+    fixed: 'left',
+    width: 180
   },
   {
     title: '权限标识',
     dataIndex: 'name',
-    scopedSlots: { customRender: 'name' }
+    scopedSlots: { customRender: 'name' },
+    width: 230
   },
   {
     title: '路径',
-    dataIndex: 'path'
+    dataIndex: 'path',
+    width: 190
   },
   {
     title: '图标',
     dataIndex: 'icon',
-    scopedSlots: { customRender: 'icon' }
+    scopedSlots: { customRender: 'icon' },
+    width: 150
   },
   {
     title: '组件',
-    dataIndex: 'component'
+    dataIndex: 'component',
+    width: 180
   },
   {
     title: '重定向地址',
-    dataIndex: 'redirect'
+    dataIndex: 'redirect',
+    width: 190
   },
   {
     title: 'target',
@@ -110,14 +135,21 @@ const columns = [
     scopedSlots: { customRender: 'show' }
   },
   {
+    title: '排序',
+    dataIndex: 'sort',
+    width: 70,
+    scopedSlots: { customRender: 'sort' }
+  },
+  {
     title: '类型',
     dataIndex: 'type',
+    fixed: 'right',
     scopedSlots: { customRender: 'type' }
   },
   {
     title: '操作',
     key: 'action',
-    // fixed: 'right',
+    fixed: 'right',
     scopedSlots: { customRender: 'action' }
   }
 ]

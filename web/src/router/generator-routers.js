@@ -19,7 +19,7 @@ const constantRouterComponents = {
   Analysis: () => import('@/views/dashboard/Analysis'),
 
   // account
-  AccountCenter: () => import('@/views/account/center'),
+  // AccountCenter: () => import('@/views/account/center'),
   AccountSettings: () => import('@/views/account/settings/Index'),
   BasicSetting: () => import('@/views/account/settings/BasicSetting'),
   SecuritySettings: () => import('@/views/account/settings/Security'),

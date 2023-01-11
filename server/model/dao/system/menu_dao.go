@@ -105,7 +105,7 @@ func (md *MenuDao) QueryAllMenus() (allMenus []*MenuAndPermission, err error) {
 	t2.title,
 	t2.icon,
 	t2.target,
-	t2.SHOW,
+	t2.SHOW as 'show',
 	t2.hide_children,
 	t2.hidden_header_content,
 	1 as type

@@ -12,14 +12,15 @@
         </a-menu-item>
         <a-menu-item v-if="menu" key="settings" @click="handleToSettings">
           <a-icon type="setting" />
-          {{ $t('menu.account.settings') }}
+          <!-- {{ $t('menu.account.settings') }} -->
+          个人设置
         </a-menu-item>
         <a-menu-divider v-if="menu" />
         <a-menu-item key="logout" @click="handleLogout">
           <a-icon type="logout" />
           {{ $t('menu.account.logout') }}
         </a-menu-item>
-      </a-menu>
+        </a-menu-item></a-menu>
     </template>
   </a-dropdown>
   <span v-else>
