@@ -41,7 +41,7 @@ func (uc *UserController) GetUsers(ctx *gin.Context) {
 	err := ctx.ShouldBind(query)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "get user failed"))
-		response.ResponseHttpError(ctx, "获取用户列表失败")
+		response.ResponseHttpError(ctx, err.Error())
 		return
 	}
 	if query.PageSize == 0 {
@@ -69,7 +69,7 @@ func (uc *UserController) AddUser(ctx *gin.Context) {
 	err := ctx.ShouldBind(user)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "add user failed"))
-		response.ResponseHttpError(ctx, "获取用户信息失败")
+		response.ResponseHttpError(ctx, err.Error())
 		return
 	}
 	err = tools.Validate(user)
@@ -92,7 +92,7 @@ func (uc *UserController) UpdateUser(ctx *gin.Context) {
 	err := ctx.ShouldBind(user)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "update user failed"))
-		response.ResponseHttpError(ctx, "获取用户信息失败")
+		response.ResponseHttpError(ctx, err.Error())
 		return
 	}
 	err = tools.Validate(user)
@@ -120,7 +120,7 @@ func (uc *UserController) ResetUserPwd(ctx *gin.Context) {
 	err := ctx.ShouldBind(user)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "reset user password failed"))
-		response.ResponseHttpError(ctx, "获取用户信息失败")
+		response.ResponseHttpError(ctx, err.Error())
 		return
 	}
 	err = uc.UserService.ResetUserPassword(user)
@@ -137,7 +137,7 @@ func (uc *UserController) DeleteUser(ctx *gin.Context) {
 	err := ctx.ShouldBind(user)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "reset user password failed"))
-		response.ResponseHttpError(ctx, "获取用户信息失败")
+		response.ResponseHttpError(ctx, err.Error())
 		return
 	}
 	if user.ID == "" {

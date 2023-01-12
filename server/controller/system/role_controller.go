@@ -26,7 +26,7 @@ func (rc *RoleController) GetRoles(ctx *gin.Context) {
 	err := ctx.ShouldBind(query)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "get role failed"))
-		response.ResponseHttpError(ctx, "获取角色列表失败")
+		response.ResponseHttpError(ctx, err.Error())
 		return
 	}
 	if query.PageSize == 0 {
@@ -50,7 +50,7 @@ func (rc *RoleController) AddRole(ctx *gin.Context) {
 	err := ctx.ShouldBind(role)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "add role failed"))
-		response.ResponseHttpError(ctx, "获取角色信息失败")
+		response.ResponseHttpError(ctx, err.Error())
 		return
 	}
 	err = tools.Validate(role)
@@ -73,7 +73,7 @@ func (rc *RoleController) UpdateRole(ctx *gin.Context) {
 	err := ctx.ShouldBind(role)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "update role failed"))
-		response.ResponseHttpError(ctx, "获取角色信息失败")
+		response.ResponseHttpError(ctx, err.Error())
 		return
 	}
 	err = tools.Validate(role)
@@ -102,7 +102,7 @@ func (rc *RoleController) DeleteRole(ctx *gin.Context) {
 	err := ctx.ShouldBind(role)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "reset role password failed"))
-		response.ResponseHttpError(ctx, "获取用户信息失败")
+		response.ResponseHttpError(ctx, err.Error())
 		return
 	}
 	if role.ID == 0 {

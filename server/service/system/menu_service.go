@@ -3,15 +3,19 @@ package system
 import (
 	"fmt"
 	"github.com/DolphinDong/backend-template/common/constant"
+	e2 "github.com/DolphinDong/backend-template/common/errors"
+	"github.com/DolphinDong/backend-template/global"
 	"github.com/DolphinDong/backend-template/model/dao/system"
 	model2 "github.com/DolphinDong/backend-template/model/model"
 	"github.com/DolphinDong/backend-template/tools"
 	"github.com/pkg/errors"
+	"gorm.io/gorm"
 	"sort"
 )
 
 const (
 	PermissionType = 2
+	MenuType       = 1
 )
 
 type MenuService struct {
@@ -158,11 +162,12 @@ func (ms *MenuService) AppendMenuPermissions(menus []*system.MenuAndPermission, 
 		menuChildren := make([]*system.MenuAndPermission, 0, len(menuPermissions))
 		for _, menuPermission := range menuPermissions {
 			menuChildren = append(menuChildren, &system.MenuAndPermission{
-				ID:     menuPermission.ID,
-				Type:   PermissionType, // 权限的类型为2
-				Name:   fmt.Sprintf("%v : %v", menuPermission.Identify, menuPermission.Action),
-				Title:  menuPermission.Describe,
-				Action: menuPermission.Action,
+				ID:       menuPermission.ID,
+				Type:     PermissionType, // 权限的类型为2
+				Name:     fmt.Sprintf("%v : %v", menuPermission.Identify, menuPermission.Action),
+				Title:    menuPermission.Describe,
+				Action:   menuPermission.Action,
+				ParentId: menuPermission.MenuID,
 			})
 		}
 		menu.Children = menuChildren
@@ -171,11 +176,12 @@ func (ms *MenuService) AppendMenuPermissions(menus []*system.MenuAndPermission, 
 	// 遍历剩余的
 	for _, p := range restPermission {
 		result = append(result, &system.MenuAndPermission{
-			ID:     p.ID,
-			Type:   PermissionType, // 权限的类型为2
-			Name:   fmt.Sprintf("%v : %v", p.Identify, p.Action),
-			Title:  p.Describe,
-			Action: p.Action,
+			ID:       p.ID,
+			Type:     PermissionType, // 权限的类型为2
+			Name:     fmt.Sprintf("%v : %v", p.Identify, p.Action),
+			Title:    p.Describe,
+			Action:   p.Action,
+			ParentId: p.MenuID,
 		})
 	}
 	return result
@@ -196,11 +202,213 @@ func (ms *MenuService) PickMenuPermissions(menuId int, permissions []*model2.Per
 func (ms *MenuService) BuildMenuTree(menuId int, allMenus []*system.MenuAndPermission) (menuTree []*system.MenuAndPermission) {
 	for _, menu := range allMenus {
 		if menu.ParentId == menuId {
-			if menu.Type == 1 {
+			if menu.Type == MenuType {
 				menu.Children = append(menu.Children, ms.BuildMenuTree(menu.ID, allMenus)...)
 			}
 			menuTree = append(menuTree, menu)
 		}
 	}
 	return
+}
+
+func (ms *MenuService) AddMenu(menu *system.MenuAndPermission) error {
+
+	if menu.Type == MenuType { // 菜单
+		err := global.DB.Transaction(func(tx *gorm.DB) error {
+			m := &model2.SystemMenu{
+				ParentId:  menu.ParentId,
+				Name:      menu.Name,
+				Path:      menu.Path,
+				Component: menu.Component,
+				Redirect:  menu.Redirect,
+				Sort:      menu.Sort,
+			}
+
+			newMenu, err := ms.MenuDao.AddMenu(tx, m)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			if newMenu == nil {
+				return errors.New("add system menu failed")
+			}
+			meta := &model2.MenuMeta{
+				MenuID:              newMenu.ID,
+				Title:               menu.Title,
+				Icon:                menu.Icon,
+				Target:              menu.Target,
+				Show:                menu.Show,
+				HideChildren:        menu.HideChildren,
+				HiddenHeaderContent: menu.HiddenHeaderContent,
+			}
+			err = ms.MenuDao.AddMenuMeta(tx, meta)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			return nil
+		})
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	} else if menu.Type == PermissionType { // 权限
+		p := &model2.Permission{
+			MenuID:   menu.ParentId,
+			Describe: menu.Title,
+			Identify: menu.Name,
+			Action:   menu.Action,
+		}
+		err := ms.MenuDao.AddPermission(nil, p)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	} else {
+		return errors.New("Invalid parameter: Type")
+	}
+
+	return nil
+}
+
+func (ms *MenuService) UpdateMenu(menu *system.MenuAndPermission) error {
+	if menu.Type == MenuType { // 菜单
+		err := global.DB.Transaction(func(tx *gorm.DB) error {
+			// 查询老的数据，后面修改要casbin规则用到
+			oldMenu, err := ms.MenuDao.QuerySystemMenuById(menu.ID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			m := &model2.SystemMenu{
+				ID:        menu.ID,
+				ParentId:  menu.ParentId,
+				Name:      menu.Name,
+				Path:      menu.Path,
+				Component: menu.Component,
+				Redirect:  menu.Redirect,
+				Sort:      menu.Sort,
+			}
+
+			err = ms.MenuDao.UpdateMenu(tx, m)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			meta := &model2.MenuMeta{
+				MenuID:              menu.ID,
+				Title:               menu.Title,
+				Icon:                menu.Icon,
+				Target:              menu.Target,
+				Show:                menu.Show,
+				HideChildren:        menu.HideChildren,
+				HiddenHeaderContent: menu.HiddenHeaderContent,
+			}
+			err = ms.MenuDao.UpdateMenuMeta(tx, meta)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			// 变更了才修改
+			if oldMenu.Name != menu.Name {
+				err = ms.MenuDao.UpdateMenuCasbin(tx, oldMenu.Name, menu.Name)
+				if err != nil {
+					return errors.WithStack(err)
+				}
+			}
+
+			return nil
+		})
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	} else if menu.Type == PermissionType { // 权限
+		err := global.DB.Transaction(func(tx *gorm.DB) error {
+			// 先查询未修改前的数据
+			oldMenuPermission, err := ms.MenuDao.QueryMenuPermissionByID(menu.ID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			p := &model2.Permission{
+				ID:       menu.ID,
+				MenuID:   menu.ParentId,
+				Describe: menu.Title,
+				Identify: menu.Name,
+				Action:   menu.Action,
+			}
+			err = ms.MenuDao.UpdatePermission(tx, p)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			// 变更了才修改
+			if oldMenuPermission.Identify != menu.Name || oldMenuPermission.Action != menu.Action {
+				err = ms.MenuDao.UpdatePermissionCasbin(tx, oldMenuPermission.Identify, menu.Name, oldMenuPermission.Action, menu.Action)
+				if err != nil {
+					return errors.WithStack(err)
+				}
+			}
+			return nil
+		})
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	} else {
+		return errors.New("Invalid parameter: Type")
+	}
+
+	return nil
+}
+
+func (ms *MenuService) DeleteMenu(id, menuType int) error {
+	if menuType == MenuType { // 菜单
+		err := global.DB.Transaction(func(tx *gorm.DB) error {
+			// 判断当前菜单是否有子菜单，如果有子菜单不允许删除
+			count, err := ms.MenuDao.QuerySystemMenuCountByParentId(id)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			if count > 0 {
+				return e2.HasSubMenuError
+			}
+			systemMenu, err := ms.MenuDao.QuerySystemMenuById(id)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			err = ms.MenuDao.DeleteSystemMenuById(tx, id)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			err = ms.MenuDao.DeleteMenuMetaByMenuId(tx, id)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			err = ms.MenuDao.DeleteCasbinByObjAct(tx, systemMenu.Name, constant.MenuAct)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			return nil
+		})
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	} else if menuType == PermissionType { // 权限
+		err := global.DB.Transaction(func(tx *gorm.DB) error {
+			permission, err := ms.MenuDao.QueryMenuPermissionByID(id)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			err = ms.MenuDao.DeletePermissionById(tx, id)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			err = ms.MenuDao.DeleteCasbinByObjAct(tx, permission.Identify, permission.Action)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+			return nil
+		})
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	} else {
+		return errors.New("Invalid parameter: Type")
+	}
+
+	return nil
+
 }

@@ -16,6 +16,9 @@ func registerRouter(engine *gin.Engine) {
 			menuController := system.NewMenuController()
 			systemApi.GET("/menus", menuController.GetUserMenu)
 			systemApi.GET("/menu", menuController.GetMenus)
+			systemApi.POST("/menu", menuController.AddMenu)
+			systemApi.PUT("/menu", menuController.UpdateMenu)
+			systemApi.DELETE("/menu",menuController.DeleteMenu)
 
 			userController := system.NewUserController()
 			systemApi.GET("/userInfo", userController.GetUserInfo)

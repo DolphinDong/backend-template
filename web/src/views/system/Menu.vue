@@ -76,7 +76,7 @@
           <a-menu slot="overlay">
             <a-menu-item
               v-if="$auth(menuApi + '.delete')"
-            ><a style="color: red">删除</a></a-menu-item
+            ><a style="color: red" @click="deleteMenu(record)">删除</a></a-menu-item
             >
           </a-menu>
           <a>更多<a-icon type="down" /></a>
@@ -111,15 +111,15 @@
           />
         </a-form-item>
         <a-form-item label="菜单标识">
+          <!-- :disabled="editRecord!=null && editRecord.type===2" -->
           <a-input
             v-decorator="[
               'name',
               {
                 rules: [
                   {
-                    pattern: /^[a-zA-Z0-9_/-]{4,20}$/,
                     required: true,
-                    message: '请输入正确的菜单标识：数组、字母、下划线、中划线长度为4-20',
+                    message: '请输入正确的菜单标识',
                   },
                 ],
               },
@@ -156,6 +156,7 @@
               'type',
               { rules: [{ required: true, message: '请选择菜单类型' }] },
             ]"
+            :disabled="editRecord!=null"
             @change="handleChange"
           >
             <a-select-option :value="1">
@@ -175,7 +176,7 @@
                   rules: [
                     {
                       pattern: /(^[a-zA-Z0-9_/-]{0,}$)|(^$)/,
-                      message: '请输入正确的菜单路径：数字字母_-/组成长度>4',
+                      message: '请输入正确的菜单路径：数字字母_-/组成长度',
                     },
                   ],
                 },
@@ -223,7 +224,7 @@
                 'target',
               ]"
             >
-              <a-select-option value="_self">
+              <a-select-option value="">
                 _self
               </a-select-option>
               <a-select-option value="_blank">
@@ -264,6 +265,7 @@
         </template>
         <template v-if="isMenu===false">
           <a-form-item label="权限标识">
+            <!-- :disabled="editRecord!=null && editRecord.type===2" -->
             <a-select
               show-search
               placeholder="请选择权限标识"
@@ -294,7 +296,7 @@
 
 <script>
 import APIS from '@/api/url'
-import { getMenus } from '@/api/menu'
+import { getMenus, addMenu, updateMenu, deleteMenu } from '@/api/menu'
 
 const columns = [
   {
@@ -304,7 +306,7 @@ const columns = [
     width: 180
   },
   {
-    title: '权限标识',
+    title: '唯一标识',
     dataIndex: 'name',
     scopedSlots: { customRender: 'name' },
     width: 230
@@ -375,7 +377,7 @@ export default {
       data: [],
       expandedRowIds: [],
       queryParam: { query: '' },
-      treeOpen: true,
+      treeOpen: false,
       editRecord: null
     }
   },
@@ -473,6 +475,7 @@ export default {
         return result
     },
     addMenu () {
+      this.ModalText = '新增菜单'
       this.editRecord = null
       this.menus = []
       this.visible = true
@@ -481,6 +484,7 @@ export default {
         this.initForm()
     },
     updateMenu (record) {
+      this.ModalText = '编辑菜单'
       this.menus = []
       this.listMenu(this.menuTree)
       this.isMenu = record.type
@@ -490,7 +494,7 @@ export default {
       this.$nextTick(() => {
           this.form.setFieldsValue({
             parentId: this.editRecord.parentId,
-            name: this.editRecord.name,
+            name: this.editRecord.name.split(' : ')[0],
             title: this.editRecord.title,
             type: this.editRecord.type
           })
@@ -505,13 +509,39 @@ export default {
       }
       this.treeOpen = !this.treeOpen
     },
-    handleOk (e) {
+    async handleOk (e) {
       this.form.validateFields(async (err, values) => {
         if (err) {
           return
         }
-        console.log(values)
-        // this.isMenu = null
+        values.show = values.show === 1
+        this.confirmLoading = true
+        let data = null
+        try {
+        if (this.editRecord) {
+          if (this.editRecord.type === 1) {
+            values.id = this.editRecord.id
+          } else {
+            values.id = parseInt(this.editRecord.id.replaceAll('p', ''))
+          }
+          data = await updateMenu(values)
+        } else {
+          data = await addMenu(values)
+        }
+      } catch (e) {
+        return
+      } finally {
+        this.confirmLoading = false
+      }
+      if (data.code && data.code === 20001) {
+          this.$message.success(this.editRecord ? '编辑成功' : '添加成功')
+          this.visible = false
+          this.searchMenu()
+        }
+        this.visible = false
+      this.initForm()
+      this.editRecord = null
+      this.isMenu = null
       })
     },
     handleCancel (e) {
@@ -558,6 +588,38 @@ export default {
         })
         }
       }
+    },
+    deleteMenu (record) {
+      this.$confirm({
+        title: '是否确认要删除该菜单？',
+        content: '删除之后将无法恢复',
+        okText: '确认',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk: async () => {
+          let data = {}
+          try {
+            const d = { type: record.type }
+            if (record.type === 2) {
+              d.id = parseInt(record.id.replaceAll('p', ''))
+            } else {
+              d.id = record.id
+            }
+            data = await deleteMenu(d)
+          } catch (e) {
+            return
+          }
+          if (data.code && data.code === 20001) {
+            this.$message.success('删除成功')
+            // 如果为本业最后一个则返回到上一页
+            if (this.data.length === 1) {
+              // this.pagination.current = this.pagination.current > 1 ? this.pagination.current - 1 : 1
+              this.pagination.current = 1
+            }
+            this.searchMenu()
+          }
+        }
+      })
     },
     initForm () {
       this.form.resetFields()

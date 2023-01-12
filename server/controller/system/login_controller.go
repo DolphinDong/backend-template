@@ -30,7 +30,7 @@ func (lc *LoginController) Login(ctx *gin.Context) {
 	err := ctx.ShouldBind(&params)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "read user info failed"))
-		response.ResponseHttpError(ctx, "系统异常 登录失败")
+		response.ResponseHttpError(ctx, err.Error())
 		return
 	}
 	user, err := lc.LoginService.Login(params.Username, params.Password, ctx.RemoteIP())

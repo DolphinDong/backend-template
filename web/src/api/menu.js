@@ -7,3 +7,27 @@ export function getMenus (params) {
         params: params
     })
 }
+
+export function addMenu (data) {
+    return request({
+      url: APIS.menuApi.menu,
+      method: 'post',
+      data: data
+    })
+  }
+
+  export function updateMenu (data) {
+    return request({
+      url: APIS.menuApi.menu,
+      method: 'put',
+      data: data
+    })
+  }
+
+  export function deleteMenu (data) {
+    return request({
+      url: APIS.menuApi.menu,
+      method: 'delete',
+      data: data
+    })
+  }
