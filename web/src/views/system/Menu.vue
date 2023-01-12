@@ -225,7 +225,7 @@
               ]"
             >
               <a-select-option value="">
-                _self
+                默认值
               </a-select-option>
               <a-select-option value="_blank">
                 _blank
