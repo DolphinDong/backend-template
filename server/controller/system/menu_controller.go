@@ -84,6 +84,13 @@ func (mc *MenuController) UpdateMenu(ctx *gin.Context) {
 		response.ResponseHttpErrorWithInfo(ctx, err.Error())
 		return
 	}
+
+	if menu.Type == system.MenuType && menu.ID == menu.ParentId {
+		global.Logger.Errorf("%+v", errors.New("validate parameter failed, Invalid parameter: parentId"))
+		response.ResponseHttpErrorWithInfo(ctx, "Invalid parameter: parentId")
+		return
+	}
+
 	err = mc.MenuService.UpdateMenu(menu)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "update menu failed"))
@@ -106,7 +113,7 @@ func (mc *MenuController) DeleteMenu(ctx *gin.Context) {
 		response.ResponseHttpErrorWithInfo(ctx, "Invalid parameter: id or type")
 		return
 	}
-	err = mc.MenuService.DeleteMenu(menu.ID,menu.Type)
+	err = mc.MenuService.DeleteMenu(menu.ID, menu.Type)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "delete user failed"))
 		response.ResponseHttpError(ctx, "删除失败: "+err.Error())

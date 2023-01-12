@@ -432,7 +432,7 @@ export default {
     },
     listMenu (dataList) {
       dataList.forEach(element => {
-          if (element.type !== 1) {
+          if (element.type !== 1 || (element.type === 1 && (this.editRecord == null || element.id === this.editRecord.id))) {
             return
           }
           this.menus.push({ id: element.id, title: element.title })
@@ -486,11 +486,11 @@ export default {
     updateMenu (record) {
       this.ModalText = '编辑菜单'
       this.menus = []
+      this.editRecord = record
       this.listMenu(this.menuTree)
       this.isMenu = record.type
       this.initForm()
       this.visible = true
-      this.editRecord = record
       this.$nextTick(() => {
           this.form.setFieldsValue({
             parentId: this.editRecord.parentId,
