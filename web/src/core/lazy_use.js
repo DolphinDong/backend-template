@@ -46,7 +46,8 @@ import {
   Space,
   message,
   notification,
-  Pagination
+  Pagination,
+  Tree
 } from 'ant-design-vue'
 import Viser from 'viser-vue'
 
@@ -116,5 +117,6 @@ Vue.use(PageLoading)
 Vue.use(PermissionHelper)
 Vue.use(VueCropper)
 Vue.use(Pagination)
+Vue.use(Tree)
 
 process.env.NODE_ENV !== 'production' && console.warn('[antd-pro] NOTICE: Antd use lazy-load.')
