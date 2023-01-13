@@ -255,6 +255,9 @@
       <a-spin :spinning="drawer.spinning">
         <RoleTree ref="roleTree" ></RoleTree>
       </a-spin>
+      <div style="width:100%;height:50px">
+
+      </div>
       <div
         :style="{
           position: 'absolute',
@@ -262,7 +265,7 @@
           bottom: 0,
           width: '100%',
           borderTop: '1px solid #e9e9e9',
-          padding: '10px 16px',
+          padding: '8px 16px',
           background: '#fff',
           textAlign: 'right',
           zIndex: 1,
@@ -415,7 +418,8 @@ export default {
         visible: false,
         editRecord: {},
         defaultCheck: [],
-        spinning: false
+        spinning: false,
+        title: ''
       }
     }
   },
@@ -602,10 +606,14 @@ export default {
       this.drawer.defaultCheck = []
       this.$refs.roleTree.checkedKeys = []
       this.drawer.spinning = false
+      this.drawer.title = ''
     },
     async onSubmit () {
       this.drawer.spinning = true
-     const checkedKes = this.$refs.roleTree.checkedKeys.checked ? this.$refs.roleTree.checkedKeys.checked : this.$refs.roleTree.checkedKeys
+      let checkedKes = []
+      if (this.$refs.roleTree.checkedKeys) {
+         checkedKes = this.$refs.roleTree.checkedKeys.checked ? this.$refs.roleTree.checkedKeys.checked : this.$refs.roleTree.checkedKeys
+      }
      let data = {}
      try {
        data = await updateUserPermission({ id: this.drawer.editRecord.id, permissions: checkedKes })
@@ -623,6 +631,7 @@ export default {
 
     },
     async updateUserPermission (record) {
+      this.drawer.title = '修改' + record.username + '的权限'
       this.loadingTable = true
       this.drawer.editRecord = record
       this.drawer.defaultCheck = []
