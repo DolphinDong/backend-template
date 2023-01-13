@@ -25,7 +25,7 @@ func (cd *CasbinDao) DeleteCasbinRuleByReq(tx *gorm.DB, req string) error {
 	return nil
 }
 
-func (cd *CasbinDao) AddCasbinPolicys(tx *gorm.DB, rule []*model2.CasbinRule) error {
+func (cd *CasbinDao) AddCasbinRows(tx *gorm.DB, rule []*model2.CasbinRule) error {
 	if tx == nil {
 		tx = cd.DB
 	}

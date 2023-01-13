@@ -104,7 +104,13 @@ func (us *UserService) AddUser(user *model.User) (err error) {
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		_, err = global.Enforcer.AddGroupingPolicy(user.ID, constant.UserDefaultRole)
+		userCasbin := &model.CasbinRule{
+			Ptype: "g",
+			V0:    user.ID,
+			V1:    constant.UserDefaultRole,
+		}
+		err = system.NewCasbinDao().AddCasbinRows(tx, []*model.CasbinRule{userCasbin})
+		//_, err = global.Enforcer.AddGroupingPolicy(user.ID, constant.UserDefaultRole)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -245,7 +251,7 @@ func (us *UserService) UpdateReqPermission(req string, permissions []interface{}
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		err = casbinDao.AddCasbinPolicys(tx, allCasbinRule)
+		err = casbinDao.AddCasbinRows(tx, allCasbinRule)
 		if err != nil {
 			return errors.WithStack(err)
 		}

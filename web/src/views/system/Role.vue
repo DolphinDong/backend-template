@@ -130,7 +130,7 @@
         <a-button :style="{ marginRight: '8px' }" @click="onClose">
           取消
         </a-button>
-        <a-button type="primary" @click="onSubmit">
+        <a-button :loading="this.drawer.spinning" type="primary" @click="onSubmit">
           确定
         </a-button>
       </div>
