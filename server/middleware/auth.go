@@ -13,8 +13,8 @@ import (
 )
 
 var (
-	noLoginUrls     = []string{"/api/system/login"}
-	noPermCheckUrls = []string{"/api/system/login", "/"}
+	noLoginUrls     = []string{"/api/system/login","/api/system/logout"}
+	noPermCheckUrls = []string{"/api/system/login", "/api/system/logout","/"}
 )
 
 // 权限校验

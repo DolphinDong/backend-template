@@ -432,7 +432,8 @@ export default {
     },
     listMenu (dataList) {
       dataList.forEach(element => {
-          if (element.type !== 1 || (element.type === 1 && (this.editRecord == null || element.id === this.editRecord.id))) {
+        // || (element.type === 1 && (this.editRecord == null || element.id === this.editRecord.id))
+          if (element.type !== 1 || (this.editRecord && element.id === this.editRecord.id)) {
             return
           }
           this.menus.push({ id: element.id, title: element.title })

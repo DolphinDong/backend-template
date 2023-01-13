@@ -40,3 +40,18 @@ export function deleteUser (data) {
     data: data
   })
 }
+
+export function getUserPermission (params) {
+  return request({
+    url: APIS.userApi.userPermission,
+    method: 'get',
+    params: params
+  })
+}
+export function updateUserPermission (data) {
+  return request({
+    url: APIS.userApi.userPermission,
+    method: 'put',
+    data: data
+  })
+}

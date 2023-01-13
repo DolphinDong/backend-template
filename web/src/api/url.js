@@ -1,7 +1,7 @@
 
 const loginApi = {
   Login: '/system/login',
-  Logout: '/auth/logout',
+  Logout: '/system/logout',
   ForgePassword: '/auth/forge-password',
   Register: '/auth/register',
   twoStepCode: '/auth/2step-code',
@@ -24,7 +24,8 @@ const manageApi = {
 }
 const userApi = {
   user: '/system/user',
-  resetPwd: '/system/user/resetPwd'
+  resetPwd: '/system/user/resetPwd',
+  userPermission: '/system/user/permission'
 }
 const roleApi = {
   role: '/system/role'

@@ -116,12 +116,16 @@
       <span slot="action" slot-scope="text, record">
         <a v-if="$auth(userApi + '.put')" @click="updateUser(record)">编辑</a>
         <a-divider type="vertical" />
-        <a-dropdown v-if="$auth(resetPwdAPi + '.put') || $auth(userApi + '.delete')">
+        <a-dropdown v-if="$auth(resetPwdAPi + '.put') || $auth(userApi + '.delete') || $auth(updateUserPermissionApi + '.put')">
           <a-menu slot="overlay">
             <!-- <a-menu-item v-if="$auth(userApi + '.put')"><a>编辑</a></a-menu-item> -->
             <a-menu-item
               v-if="$auth(resetPwdAPi + '.put')"
             ><a @click="resetPwd(record)">重置密码</a></a-menu-item
+            >
+            <a-menu-item
+              v-if="$auth(updateUserPermissionApi + '.put')"
+            ><a @click="updateUserPermission(record)">修改权限</a></a-menu-item
             >
             <a-menu-item
               v-if="$auth(userApi + '.delete')"
@@ -239,13 +243,54 @@
         </a-form-item>
       </a-form>
     </a-modal>
+    <a-drawer
+      :title="drawer.title"
+      placement="right"
+      :closable="false"
+      :visible="drawer.visible"
+      :after-visible-change="afterVisibleChange"
+      @close="onClose"
+      :width="400"
+    >
+      <a-spin :spinning="drawer.spinning">
+        <RoleTree ref="roleTree" :defaultCheck="drawer.defaultCheck"></RoleTree>
+      </a-spin>
+      <div
+        :style="{
+          position: 'absolute',
+          right: 0,
+          bottom: 0,
+          width: '100%',
+          borderTop: '1px solid #e9e9e9',
+          padding: '10px 16px',
+          background: '#fff',
+          textAlign: 'right',
+          zIndex: 1,
+        }"
+      >
+        <a-button :style="{ marginRight: '8px' }" @click="onClose">
+          取消
+        </a-button>
+        <a-button type="primary" @click="onSubmit">
+          确定
+        </a-button>
+      </div>
+    </a-drawer>
   </a-card>
 </template>
 
 <script>
 import APIS from '@/api/url'
-import { getUsers, addUser, updateUser, resetUserPwd, deleteUser } from '@/api/user'
+import {
+  getUsers,
+  addUser,
+  updateUser,
+  resetUserPwd,
+  deleteUser,
+  getUserPermission,
+  updateUserPermission } from '@/api/user'
 
+import RoleTree from '@/components/RoleTree'
 const genderMap = {
   1: {
     type: 'success',
@@ -342,6 +387,7 @@ export default {
       columns,
       userApi: APIS.BaseUrl + APIS.userApi.user,
       resetPwdAPi: APIS.BaseUrl + APIS.userApi.resetPwd,
+      updateUserPermissionApi: APIS.BaseUrl + APIS.userApi.userPermission,
       loadingTable: false,
       queryParam: {
         gender: '3',
@@ -364,7 +410,13 @@ export default {
           this.handPageChange(current, size)
         }
       },
-      form: this.$form.createForm(this, { name: 'coordinated' })
+      form: this.$form.createForm(this, { name: 'coordinated' }),
+      drawer: {
+        visible: false,
+        editRecord: {},
+        defaultCheck: [],
+        spinning: false
+      }
     }
   },
   methods: {
@@ -543,11 +595,63 @@ export default {
           status: 1
         })
      })
+    },
+    onClose () {
+      this.drawer.visible = false
+      this.drawer.editRecord = {}
+      this.drawer.defaultCheck = []
+      this.$refs.roleTree.checkedKeys = []
+      this.drawer.spinning = false
+    },
+    async onSubmit () {
+      this.drawer.spinning = true
+     const checkedKes = this.$refs.roleTree.checkedKeys.checked ? this.$refs.roleTree.checkedKeys.checked : this.$refs.roleTree.checkedKeys
+     let data = {}
+     try {
+       data = await updateUserPermission({ id: this.drawer.editRecord.id, permissions: checkedKes })
+     } catch (e) {
+      return
+     } finally {
+     this.drawer.spinning = false
+     this.drawer.visible = false
+     }
+     if (data.code && data.code === 20001) {
+          this.$message.success('修改成功')
+        }
+    },
+    afterVisibleChange () {
+
+    },
+    async updateUserPermission (record) {
+      this.loadingTable = true
+      this.drawer.editRecord = record
+      this.drawer.defaultCheck = []
+      try {
+        const data = await getUserPermission({ id: record.id })
+        this.drawer.defaultCheck = data.data
+        this.drawer.visible = true
+        this.drawer.spinning = true
+        setTimeout(() => {
+          this.$refs.roleTree.checkedKeys = this.drawer.defaultCheck
+          this.drawer.spinning = false
+        }, 1000)
+      } catch (e) {
+        console.log(e)
+        setTimeout(() => {
+          this.drawer.visible = false
+        }, 2000)
+      } finally {
+        this.loadingTable = false
+      }
     }
   },
   mounted () {
     this.queryUser()
     this.initFormData()
+  },
+  components: {
+    RoleTree
+
   }
 }
 </script>

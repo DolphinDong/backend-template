@@ -56,3 +56,7 @@ func (lc *LoginController) Login(ctx *gin.Context) {
 		response.ResponseHttpErrorWithInfo(ctx, "登录失败")
 	}
 }
+
+func (lc *LoginController) Logout(ctx *gin.Context) {
+	response.ResponseOkWithMessage(ctx,"logout success")
+}

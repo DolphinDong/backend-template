@@ -278,3 +278,17 @@ func (md *MenuDao) QuerySystemMenuCountByParentId(id int) (count int64, err erro
 
 	return
 }
+
+func (md *MenuDao) QuerySystemMenuByIds(ids []int64) (systemMenu []*model2.SystemMenu, err error) {
+	if err = md.Where("id in ?", ids).Find(&systemMenu).Error; err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return
+}
+
+func (md *MenuDao) QueryPermissionByIds(ids []int64) (permissions []*model2.Permission, err error) {
+	if err = md.Where("id in ?", ids).Find(&permissions).Error; err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return
+}
