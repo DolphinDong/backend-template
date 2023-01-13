@@ -253,7 +253,7 @@
       :width="400"
     >
       <a-spin :spinning="drawer.spinning">
-        <RoleTree ref="roleTree" :defaultCheck="drawer.defaultCheck"></RoleTree>
+        <RoleTree ref="roleTree" ></RoleTree>
       </a-spin>
       <div
         :style="{

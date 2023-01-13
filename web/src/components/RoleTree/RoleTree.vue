@@ -22,11 +22,10 @@
   import APIS from '@/api/url'
 import { getMenus, addMenu, updateMenu, deleteMenu } from '@/api/menu'
   export default {
-    props: ['defaultCheck'],
     data () {
       return {
         autoExpandParent: true,
-        checkedKeys: this.defaultCheck,
+        checkedKeys: [],
         treeData: [],
         replaceFields: { key: 'id' },
         expandedKeys: [],
