@@ -32,3 +32,18 @@ export function deleteRole (data) {
         data: data
     })
 }
+
+export function getRolePermission (params) {
+    return request({
+      url: APIS.roleApi.rolePermission,
+      method: 'get',
+      params: params
+    })
+  }
+  export function updateRolePermission (data) {
+    return request({
+      url: APIS.roleApi.rolePermission,
+      method: 'put',
+      data: data
+    })
+  }

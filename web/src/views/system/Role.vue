@@ -35,8 +35,13 @@
       <span slot="action" slot-scope="text,record">
         <a v-if="$auth(roleApi + '.put')" @click="updateRole(record)">编辑</a>
         <a-divider type="vertical" />
-        <a-dropdown v-if="$auth(roleApi + '.delete')">
+        <a-dropdown v-if="$auth(roleApi + '.delete') || $auth(updaterolePermissionApi + '.put')">
           <a-menu slot="overlay">
+            <!-- updaterolePermission -->
+            <a-menu-item
+              v-if="$auth(updaterolePermissionApi + '.put')"
+            ><a @click="updaterolePermission(record)">修改权限</a></a-menu-item
+            >
             <a-menu-item
               v-if="$auth(roleApi + '.delete')"
             ><a style="color: red" @click="deleteRole(record)">删除</a></a-menu-item
@@ -94,12 +99,50 @@
         </a-form-item>
       </a-form>
     </a-modal>
+    <a-drawer
+      :title="drawer.title"
+      placement="right"
+      :closable="false"
+      :visible="drawer.visible"
+      :after-visible-change="afterVisibleChange"
+      @close="onClose"
+      :width="400"
+    >
+      <a-spin :spinning="drawer.spinning">
+        <RoleTree ref="roleTree" ></RoleTree>
+      </a-spin>
+      <div style="width:100%;height:50px">
+
+      </div>
+      <div
+        :style="{
+          position: 'absolute',
+          right: 0,
+          bottom: 0,
+          width: '100%',
+          borderTop: '1px solid #e9e9e9',
+          padding: '10px 16px',
+          background: '#fff',
+          textAlign: 'right',
+          zIndex: 1,
+        }"
+      >
+        <a-button :style="{ marginRight: '8px' }" @click="onClose">
+          取消
+        </a-button>
+        <a-button type="primary" @click="onSubmit">
+          确定
+        </a-button>
+      </div>
+    </a-drawer>
   </a-card>
 </template>
 
 <script>
 import APIS from '@/api/url'
-import { getRoles, updateRole, addRole, deleteRole } from '@/api/role'
+import { getRoles, updateRole, addRole, deleteRole, updateRolePermission, getRolePermission } from '@/api/role'
+import RoleTree from '@/components/RoleTree'
+
 const columns = [
   {
     dataIndex: 'role_name',
@@ -121,31 +164,39 @@ export default {
     name: 'Role',
     data () {
         return {
-            queryParam: { query: '' },
-            loadingTable: false,
-            roleApi: APIS.BaseUrl + APIS.roleApi.role,
-            data: [],
-            columns: columns,
-            confirmLoading: false,
-            ModalText: '',
-            disableInput: false,
+          queryParam: { query: '' },
+          loadingTable: false,
+          roleApi: APIS.BaseUrl + APIS.roleApi.role,
+          data: [],
+          columns: columns,
+          confirmLoading: false,
+          ModalText: '',
+          disableInput: false,
+          visible: false,
+          editRole: {},
+          pagination: {
+              pageSizeOptions: ['10', '20', '30', '40', '50'],
+              current: 1,
+              pageSize: 10,
+              total: 0,
+              showSizeChanger: true,
+              showTotal: (total) => `共${total}条`,
+              onChange: (page, size) => {
+                this.handPageChange(page, size)
+              },
+              onShowSizeChange: (current, size) => {
+                this.handPageChange(current, size)
+              }
+          },
+          updaterolePermissionApi: APIS.BaseUrl + APIS.roleApi.rolePermission,
+          form: this.$form.createForm(this, { name: 'coordinated' }),
+          drawer: {
             visible: false,
-            editRole: {},
-            pagination: {
-                pageSizeOptions: ['10', '20', '30', '40', '50'],
-                current: 1,
-                pageSize: 10,
-                total: 0,
-                showSizeChanger: true,
-                showTotal: (total) => `共${total}条`,
-                onChange: (page, size) => {
-                  this.handPageChange(page, size)
-                },
-                onShowSizeChange: (current, size) => {
-                  this.handPageChange(current, size)
-                }
-            },
-            form: this.$form.createForm(this, { name: 'coordinated' })
+            editRecord: {},
+            defaultCheck: [],
+            spinning: false,
+            title: ''
+          }
         }
     },
     methods: {
@@ -250,12 +301,67 @@ export default {
           this.queryRole()
         }
     })
+    },
+    onClose () {
+      this.drawer.visible = false
+      this.drawer.editRecord = {}
+      this.drawer.defaultCheck = []
+      this.$refs.roleTree.checkedKeys = []
+      this.drawer.spinning = false
+      this.drawer.title = ''
+    },
+    async onSubmit () {
+      this.drawer.spinning = true
+      let checkedKes = []
+      if (this.$refs.roleTree.checkedKeys) {
+         checkedKes = this.$refs.roleTree.checkedKeys.checked ? this.$refs.roleTree.checkedKeys.checked : this.$refs.roleTree.checkedKeys
+      }
+     let data = {}
+     try {
+       data = await updateRolePermission({ id: this.drawer.editRecord.id, permissions: checkedKes })
+     } catch (e) {
+      return
+     } finally {
+     this.drawer.spinning = false
+     this.drawer.visible = false
+     }
+     if (data.code && data.code === 20001) {
+          this.$message.success('修改成功')
+        }
+    },
+    afterVisibleChange () {
+
+    },
+    async updaterolePermission (record) {
+      this.drawer.title = '修改' + record.role_name + '的权限'
+      this.loadingTable = true
+      this.drawer.editRecord = record
+      this.drawer.defaultCheck = []
+      try {
+        const data = await getRolePermission({ id: record.id })
+        this.drawer.defaultCheck = data.data
+        this.drawer.visible = true
+        this.drawer.spinning = true
+        setTimeout(() => {
+          this.$refs.roleTree.checkedKeys = this.drawer.defaultCheck
+          this.drawer.spinning = false
+        }, 1000)
+      } catch (e) {
+        console.log(e)
+        setTimeout(() => {
+          this.drawer.visible = false
+        }, 2000)
+      } finally {
+        this.loadingTable = false
+      }
     }
     },
     mounted () {
         this.queryRole()
+    },
+    components: {
+      RoleTree
     }
-
 }
 </script>
 

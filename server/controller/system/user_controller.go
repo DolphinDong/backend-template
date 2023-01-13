@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-type UpdatePermission struct {
+type UpdateUserPermission struct {
 	ID          string        `json:"id" validate:"required"`
 	Permissions []interface{} `json:"permissions" validate:"required"`
 }
@@ -172,7 +172,7 @@ func (uc *UserController) GetUserPermissions(ctx *gin.Context) {
 		response.ResponseHttpErrorWithInfo(ctx, "Missing parameter: id")
 		return
 	}
-	permissions, err := uc.UserService.GetUserPermission(userId)
+	permissions, err := uc.UserService.GetReqPermission(userId)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "get user permission failed"))
 		response.ResponseHttpError(ctx, "获取用户权限失败"+err.Error())
@@ -182,10 +182,10 @@ func (uc *UserController) GetUserPermissions(ctx *gin.Context) {
 }
 
 func (uc *UserController) UpdateUserPermission(ctx *gin.Context) {
-	params := &UpdatePermission{}
+	params := &UpdateUserPermission{}
 	err := ctx.ShouldBind(params)
 	if err != nil {
-		global.Logger.Errorf("%+v", errors.WithMessage(err, "reset user password failed"))
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "update user permission failed"))
 		response.ResponseHttpError(ctx, err.Error())
 		return
 	}
@@ -195,7 +195,7 @@ func (uc *UserController) UpdateUserPermission(ctx *gin.Context) {
 		response.ResponseHttpErrorWithInfo(ctx, err.Error())
 		return
 	}
-	err=uc.UserService.UpdateUserPermission(params.ID,params.Permissions)
+	err=uc.UserService.UpdateReqPermission(params.ID,params.Permissions)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "update user permission failed"))
 		response.ResponseHttpError(ctx, "修改失败"+err.Error())

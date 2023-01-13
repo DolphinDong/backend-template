@@ -35,6 +35,8 @@ func registerRouter(engine *gin.Engine) {
 			systemApi.POST("/role", roleController.AddRole)
 			systemApi.PUT("/role", roleController.UpdateRole)
 			systemApi.DELETE("/role", roleController.DeleteRole)
+			systemApi.GET("/role/permission",roleController.GetUserPermissions)
+			systemApi.PUT("/role/permission",roleController.UpdateRolePermission)
 
 			loginController := system.NewLoginController()
 			systemApi.POST("/login", loginController.Login)

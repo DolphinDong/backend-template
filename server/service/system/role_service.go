@@ -60,6 +60,32 @@ func (rs *RoleService) DeleteRole(role *model.Role) error {
 	}
 	return nil
 }
+
+func (rs *RoleService) GetRolePermissions(roleId int64) (permissions []interface{}, err error) {
+	role, err := rs.RoleDao.QueryRoleById(uint(roleId))
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	userService := NewUserService()
+	permissions, err = userService.GetReqPermission(role.RoleIdentify)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return
+}
+
+func (rs *RoleService) UpdateRolePermission(id int, permissions []interface{}) error {
+	role, err := rs.RoleDao.QueryRoleById(uint(id))
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	userService := NewUserService()
+	err = userService.UpdateReqPermission(role.RoleIdentify, permissions)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
+}
 func NewRoleService() *RoleService {
 	return &RoleService{
 		RoleDao: system.NewRoleDao(),

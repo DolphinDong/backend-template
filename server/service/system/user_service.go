@@ -164,7 +164,7 @@ func (us *UserService) DeleteUser(userId string) (err error) {
 	return
 }
 
-func (us *UserService) GetUserPermission(userId string) (permissions []interface{}, err error) {
+func (us *UserService) GetReqPermission(req string) (permissions []interface{}, err error) {
 	menuService := NewMenuService()
 	// 查询客户拥有的菜单
 	systemMenus, err := menuService.MenuDao.QueryAllMenu()
@@ -173,7 +173,7 @@ func (us *UserService) GetUserPermission(userId string) (permissions []interface
 	}
 	for _, menu := range systemMenus {
 		// 如果有这个权限
-		if global.Enforcer.HasPolicy(userId, menu.Name, constant.MenuAct) {
+		if global.Enforcer.HasPolicy(req, menu.Name, constant.MenuAct) {
 			permissions = append(permissions, menu.ID)
 		}
 	}
@@ -185,7 +185,7 @@ func (us *UserService) GetUserPermission(userId string) (permissions []interface
 	}
 	for _, permission := range allPermission {
 		// 如果有这个权限
-		if global.Enforcer.HasPolicy(userId, permission.Identify, permission.Action) {
+		if global.Enforcer.HasPolicy(req, permission.Identify, permission.Action) {
 			permissions = append(permissions, fmt.Sprintf("p%v", permission.ID))
 		}
 	}
@@ -193,7 +193,7 @@ func (us *UserService) GetUserPermission(userId string) (permissions []interface
 	return
 }
 
-func (us *UserService) UpdateUserPermission(userId string, permissions []interface{}) (err error) {
+func (us *UserService) UpdateReqPermission(req string, permissions []interface{}) (err error) {
 	menuDao := system.NewMenuDao()
 	menuIds := []int64{}
 	permissionIds := []int64{}
@@ -226,7 +226,7 @@ func (us *UserService) UpdateUserPermission(userId string, permissions []interfa
 	for _, systemMenu := range systemMenus {
 		allCasbinRule = append(allCasbinRule, &model.CasbinRule{
 			Ptype: "p",
-			V0:    userId,
+			V0:    req,
 			V1:    systemMenu.Name,
 			V2:    constant.MenuAct,
 		})
@@ -234,14 +234,14 @@ func (us *UserService) UpdateUserPermission(userId string, permissions []interfa
 	for _, permission := range queryPermissions {
 		allCasbinRule = append(allCasbinRule, &model.CasbinRule{
 			Ptype: "p",
-			V0:    userId,
+			V0:    req,
 			V1:    permission.Identify,
 			V2:    permission.Action,
 		})
 	}
 	casbinDao := system.NewCasbinDao()
 	err = global.DB.Transaction(func(tx *gorm.DB) error {
-		err = casbinDao.DeleteCasbinRuleByReq(tx, userId)
+		err = casbinDao.DeleteCasbinRuleByReq(tx, req)
 		if err != nil {
 			return errors.WithStack(err)
 		}

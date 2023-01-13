@@ -9,11 +9,16 @@ import (
 	"github.com/DolphinDong/backend-template/tools"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
+	"strconv"
 	"strings"
 )
 
 type RoleController struct {
 	RoleService *system.RoleService
+}
+type UpdateRolePermission struct {
+	ID          int           `json:"id,string" validate:"required"`
+	Permissions []interface{} `json:"permissions" validate:"required"`
 }
 
 func NewRoleController() *RoleController {
@@ -117,4 +122,51 @@ func (rc *RoleController) DeleteRole(ctx *gin.Context) {
 		return
 	}
 	response.ResponseOkWithMessage(ctx, "删除成功")
+}
+
+func (rc *RoleController) GetUserPermissions(ctx *gin.Context) {
+	roleStr, ok := ctx.GetQuery("id")
+	if !ok {
+		global.Logger.Errorf("%+v", errors.New("Missing parameter: id"))
+		response.ResponseHttpErrorWithInfo(ctx, "Missing parameter: id")
+		return
+	}
+	roleId, err := strconv.ParseInt(roleStr, 10, 64)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.New("Invalid parameter: id"))
+		response.ResponseHttpErrorWithInfo(ctx, "Invalid parameter: id")
+		return
+	}
+
+	permissions, err := rc.RoleService.GetRolePermissions(roleId)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "get user permission failed"))
+		response.ResponseHttpError(ctx, "获取用户权限失败"+err.Error())
+		return
+	}
+	response.ResponseOkWithData(ctx, permissions)
+
+}
+
+func (rc *RoleController) UpdateRolePermission(ctx *gin.Context) {
+	params := &UpdateRolePermission{}
+	err := ctx.ShouldBind(params)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "update role permission failed"))
+		response.ResponseHttpError(ctx, err.Error())
+		return
+	}
+	err = tools.Validate(params)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "validate parameter failed"))
+		response.ResponseHttpErrorWithInfo(ctx, err.Error())
+		return
+	}
+	err=rc.RoleService.UpdateRolePermission(params.ID,params.Permissions)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "update role permission failed"))
+		response.ResponseHttpError(ctx, "修改失败"+err.Error())
+		return
+	}
+	response.ResponseOkWithMessage(ctx, "修改成功")
 }

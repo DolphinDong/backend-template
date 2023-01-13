@@ -28,7 +28,8 @@ const userApi = {
   userPermission: '/system/user/permission'
 }
 const roleApi = {
-  role: '/system/role'
+  role: '/system/role',
+  rolePermission: '/system/role/permission'
 }
 const menuApi = {
   menu: '/system/menu'
