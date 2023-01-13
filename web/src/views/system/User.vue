@@ -640,6 +640,9 @@ export default {
         this.drawer.defaultCheck = data.data
         this.drawer.visible = true
         this.drawer.spinning = true
+        if (this.$refs.roleTree) {
+          this.$refs.roleTree.queryMenus()
+        }
         setTimeout(() => {
           this.$refs.roleTree.checkedKeys = this.drawer.defaultCheck
           this.drawer.spinning = false
