@@ -1,6 +1,7 @@
 package system
 
 import (
+	"github.com/DolphinDong/backend-template/model/dao/redis"
 	"github.com/DolphinDong/backend-template/model/dao/system"
 	"github.com/DolphinDong/backend-template/model/model"
 	"github.com/DolphinDong/backend-template/tools"
@@ -33,4 +34,11 @@ func (ls *LoginService) Login(username, password, ip string) (user *model.User, 
 	}
 
 	return
+}
+
+func (ls *LoginService) Logout(token string) error {
+	if err := redis.NewRedisDao().DeleteKey(token); err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
 }

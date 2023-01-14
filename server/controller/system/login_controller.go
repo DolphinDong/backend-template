@@ -4,6 +4,7 @@ import (
 	"github.com/DolphinDong/backend-template/common/constant"
 	"github.com/DolphinDong/backend-template/common/response"
 	"github.com/DolphinDong/backend-template/global"
+	"github.com/DolphinDong/backend-template/model/dao/redis"
 	"github.com/DolphinDong/backend-template/service/system"
 	"github.com/DolphinDong/backend-template/tools"
 	"github.com/gin-gonic/gin"
@@ -41,9 +42,15 @@ func (lc *LoginController) Login(ctx *gin.Context) {
 	}
 	// 登录成功
 	if user != nil {
-		token, err := tools.CreateToken([]byte(tools.SecretKey), user.ID, constant.TokenPeriod)
+		token, err := tools.CreateToken([]byte(tools.SecretKey), user.ID, constant.JwTPeriod)
 		if err != nil {
 			global.Logger.Errorf("%+v", errors.WithMessage(err, "create token failed"))
+			response.ResponseHttpError(ctx, "系统异常 登录失败")
+			return
+		}
+		err = redis.NewRedisDao().SetKeyWithExpiration(token, user.ID, constant.TokenPeriod*60)
+		if err != nil {
+			global.Logger.Errorf("%+v", errors.WithMessage(err, "set token to redis failed"))
 			response.ResponseHttpError(ctx, "系统异常 登录失败")
 			return
 		}
@@ -58,5 +65,15 @@ func (lc *LoginController) Login(ctx *gin.Context) {
 }
 
 func (lc *LoginController) Logout(ctx *gin.Context) {
+	token := ctx.Request.Header.Get(constant.TokenHeader)
+	if token != "" {
+		err := lc.LoginService.Logout(token)
+		if err != nil {
+			global.Logger.Errorf("%+v", errors.WithMessage(err, "dlete token failed"))
+			response.ResponseHttpError(ctx, "logout failed")
+			return
+		}
+	}
+
 	response.ResponseOkWithMessage(ctx, "logout success")
 }
