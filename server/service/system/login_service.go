@@ -1,6 +1,7 @@
 package system
 
 import (
+	"github.com/DolphinDong/backend-template/common/constant"
 	"github.com/DolphinDong/backend-template/model/dao/redis"
 	"github.com/DolphinDong/backend-template/model/dao/system"
 	"github.com/DolphinDong/backend-template/model/model"
@@ -37,7 +38,11 @@ func (ls *LoginService) Login(username, password, ip string) (user *model.User, 
 }
 
 func (ls *LoginService) Logout(token string) error {
-	if err := redis.NewRedisDao().DeleteKey(token); err != nil {
+	claim, err := tools.ParseToken(token, []byte(tools.SecretKey))
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	if err = redis.NewRedisDao().DeleteKey(tools.GetRedisTokenKey(constant.TokenRedisPrefix, claim.Issuer, token)); err != nil {
 		return errors.WithStack(err)
 	}
 	return nil

@@ -66,19 +66,13 @@ func (lc *LoginController) Login(ctx *gin.Context) {
 
 func (lc *LoginController) Logout(ctx *gin.Context) {
 	token := ctx.Request.Header.Get(constant.TokenHeader)
-	claim, err := tools.ParseToken(token, []byte(tools.SecretKey))
-	if err != nil {
-		response.ResponseOkWithMessage(ctx, "logout success")
-		return
-	}
 	if token != "" {
-		err := lc.LoginService.Logout(tools.GetRedisTokenKey(constant.TokenRedisPrefix, claim.Id, token))
+		err := lc.LoginService.Logout(token)
 		if err != nil {
 			global.Logger.Errorf("%+v", errors.WithMessage(err, "dlete token failed"))
 			response.ResponseHttpError(ctx, "logout failed")
 			return
 		}
 	}
-
 	response.ResponseOkWithMessage(ctx, "logout success")
 }
