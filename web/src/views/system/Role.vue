@@ -6,7 +6,7 @@
         <a-col :md="8" :sm="24">
           <a-form-item label="搜索">
             <a-input
-              v-model="queryParam.query"
+              v-model.trim="queryParam.query"
               @pressEnter="searchRole"
               placeholder="请输入关键信息"
             />
@@ -34,22 +34,23 @@
     >
       <span slot="action" slot-scope="text,record">
         <a v-if="$auth(roleApi + '.put')" @click="updateRole(record)">编辑</a>
-        <a-divider type="vertical" />
-        <a-dropdown v-if="$auth(roleApi + '.delete') || $auth(updaterolePermissionApi + '.put')">
-          <a-menu slot="overlay">
-            <!-- updaterolePermission -->
-            <a-menu-item
-              v-if="$auth(updaterolePermissionApi + '.put')"
-            ><a @click="updaterolePermission(record)">修改权限</a></a-menu-item
-            >
-            <a-menu-item
-              v-if="$auth(roleApi + '.delete')"
-            ><a style="color: red" @click="deleteRole(record)">删除</a></a-menu-item
-            >
-          </a-menu>
-          <a>更多<a-icon type="down" /></a>
-        </a-dropdown>
-
+        <template v-if="$auth(roleApi + '.delete') || $auth(updaterolePermissionApi + '.put')">
+          <a-divider type="vertical"/>
+          <a-dropdown>
+            <a-menu slot="overlay">
+              <!-- updaterolePermission -->
+              <a-menu-item
+                v-if="$auth(updaterolePermissionApi + '.put')"
+              ><a @click="updaterolePermission(record)">修改权限</a></a-menu-item
+              >
+              <a-menu-item
+                v-if="$auth(roleApi + '.delete')"
+              ><a style="color: red" @click="deleteRole(record)">删除</a></a-menu-item
+              >
+            </a-menu>
+            <a>更多<a-icon type="down" /></a>
+          </a-dropdown>
+        </template>
       </span>
     </a-table>
     <a-modal
@@ -156,7 +157,8 @@ const columns = [
   },
   {
     title: '操作',
-    scopedSlots: { customRender: 'action' }
+    scopedSlots: { customRender: 'action' },
+    width: 200
   }
 ]
 

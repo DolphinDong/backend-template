@@ -6,7 +6,7 @@
         <a-col :md="8" :sm="24">
           <a-form-item label="搜索">
             <a-input
-              v-model="queryParam.query"
+              v-model.trim="queryParam.query"
               @pressEnter="searchUser"
               placeholder="请输入关键信息"
             />
@@ -115,25 +115,31 @@
 
       <span slot="action" slot-scope="text, record">
         <a v-if="$auth(userApi + '.put')" @click="updateUser(record)">编辑</a>
-        <a-divider type="vertical" />
-        <a-dropdown v-if="$auth(resetPwdAPi + '.put') || $auth(userApi + '.delete') || $auth(updateUserPermissionApi + '.put')">
-          <a-menu slot="overlay">
-            <!-- <a-menu-item v-if="$auth(userApi + '.put')"><a>编辑</a></a-menu-item> -->
-            <a-menu-item
-              v-if="$auth(resetPwdAPi + '.put')"
-            ><a @click="resetPwd(record)">重置密码</a></a-menu-item
-            >
-            <a-menu-item
-              v-if="$auth(updateUserPermissionApi + '.put')"
-            ><a @click="updateUserPermission(record)">修改权限</a></a-menu-item
-            >
-            <a-menu-item
-              v-if="$auth(userApi + '.delete')"
-            ><a style="color: red" @click="deleteUser(record)">删除</a></a-menu-item
-            >
-          </a-menu>
-          <a>更多<a-icon type="down" /></a>
-        </a-dropdown>
+        <template v-if="$auth(resetPwdAPi + '.put') || $auth(userApi + '.delete') || $auth(updateUserPermissionApi + '.put')|| $auth(updateUserRoleApi + '.put')">
+          <a-divider type="vertical" />
+          <a-dropdown >
+            <a-menu slot="overlay">
+              <!-- <a-menu-item v-if="$auth(userApi + '.put')"><a>编辑</a></a-menu-item> -->
+              <a-menu-item
+                v-if="$auth(resetPwdAPi + '.put')"
+              ><a @click="resetPwd(record)">重置密码</a></a-menu-item
+              >
+              <a-menu-item
+                v-if="$auth(updateUserPermissionApi + '.put')"
+              ><a @click="updateUserPermission(record)">修改权限</a></a-menu-item
+              >
+              <a-menu-item
+                v-if="$auth(updateUserRoleApi + '.put')"
+              ><a @click="updateUserRole(record)">修改角色</a></a-menu-item
+              >
+              <a-menu-item
+                v-if="$auth(userApi + '.delete')"
+              ><a style="color: red" @click="deleteUser(record)">删除</a></a-menu-item
+              >
+            </a-menu>
+            <a>更多<a-icon type="down" /></a>
+          </a-dropdown>
+        </template>
       </span>
     </a-table>
 
@@ -279,6 +285,19 @@
         </a-button>
       </div>
     </a-drawer>
+    <a-modal
+      :title="roleModal.title"
+      :visible="roleModal.visible"
+      :confirm-loading="roleModal.confirmLoading"
+      @ok="submitUserRole"
+      @cancel="cancelUpdateRole"
+      width="50%"
+      :forceRender="true"
+    >
+      <a-spin :spinning="roleModal.spinning">
+        <RoleList ref="roleList"></RoleList>
+      </a-spin>
+    </a-modal>
   </a-card>
 </template>
 
@@ -291,9 +310,10 @@ import {
   resetUserPwd,
   deleteUser,
   getUserPermission,
-  updateUserPermission } from '@/api/user'
+  updateUserPermission, getUserRole, updateUserRole } from '@/api/user'
 
 import RoleTree from '@/components/RoleTree'
+import RoleList from '@/components/RoleList'
 const genderMap = {
   1: {
     type: 'success',
@@ -391,6 +411,7 @@ export default {
       userApi: APIS.BaseUrl + APIS.userApi.user,
       resetPwdAPi: APIS.BaseUrl + APIS.userApi.resetPwd,
       updateUserPermissionApi: APIS.BaseUrl + APIS.userApi.userPermission,
+      updateUserRoleApi: APIS.BaseUrl + APIS.userApi.userRole,
       loadingTable: false,
       queryParam: {
         gender: '3',
@@ -420,6 +441,14 @@ export default {
         defaultCheck: [],
         spinning: false,
         title: ''
+      },
+      roleModal: {
+        title: '',
+        visible: false,
+        confirmLoading: false,
+        editUser: {},
+        spinning: false
+
       }
     }
   },
@@ -655,6 +684,56 @@ export default {
       } finally {
         this.loadingTable = false
       }
+    },
+   async updateUserRole (record) {
+      this.loadingTable = true
+      this.roleModal.editUser = record
+      this.roleModal.title = '修改' + record.username + '的角色'
+      try {
+        const data = await getUserRole({ user_id: record.id })
+        this.roleModal.visible = true
+        // this.roleModal.spinning = true
+        if (this.$refs.roleList) {
+          this.$refs.roleList.queryParam = { query: '' }
+          this.$refs.roleList.selectedRowKeys = []
+          this.$refs.roleList.queryRole()
+        }
+        setTimeout(() => {
+          this.$refs.roleList.selectedRowKeys = data.data === null ? [] : data.data
+          // this.roleModal.spinning = false
+        }, 600)
+      } catch (e) {
+        console.log(e)
+        setTimeout(() => {
+          this.roleModal.visible = false
+        }, 2000)
+      } finally {
+        this.loadingTable = false
+      }
+      this.roleModal.visible = true
+    },
+    async submitUserRole () {
+      this.roleModal.confirmLoading = true
+      const roleIds = this.$refs.roleList.selectedRowKeys
+      const data = { id: this.roleModal.editUser.id, roleIds: roleIds }
+      let result = {}
+      try {
+        result = await updateUserRole(data)
+        this.roleModal.visible = false
+      } catch (error) {
+        console.log(error)
+        return
+      } finally {
+        this.roleModal.confirmLoading = false
+      }
+      if (result.code && result.code === 20001) {
+          this.$message.success('修改成功')
+        }
+    },
+    cancelUpdateRole () {
+      this.roleModal.visible = false
+      this.roleModal.editUser = {}
+      this.roleModal.title = ''
     }
   },
   mounted () {
@@ -662,8 +741,8 @@ export default {
     this.initFormData()
   },
   components: {
-    RoleTree
-
+    RoleTree,
+    RoleList
   }
 }
 </script>

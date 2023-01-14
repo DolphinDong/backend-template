@@ -37,3 +37,5 @@ yarn-error.log*
 package-lock.json
 logs/
 _test.go
+dist
+web/node_modules

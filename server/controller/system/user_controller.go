@@ -17,7 +17,10 @@ type UpdateUserPermission struct {
 	ID          string        `json:"id" validate:"required"`
 	Permissions []interface{} `json:"permissions" validate:"required"`
 }
-
+type UpdateUserRole struct {
+	ID      string   `json:"id" validate:"required"`
+	RoleIds []string `json:"roleIds" validate:"required"`
+}
 type UserController struct {
 	UserService *system.UserService
 }
@@ -195,9 +198,48 @@ func (uc *UserController) UpdateUserPermission(ctx *gin.Context) {
 		response.ResponseHttpErrorWithInfo(ctx, err.Error())
 		return
 	}
-	err=uc.UserService.UpdateReqPermission(params.ID,params.Permissions)
+	err = uc.UserService.UpdateReqPermission(params.ID, params.Permissions)
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "update user permission failed"))
+		response.ResponseHttpError(ctx, "修改失败"+err.Error())
+		return
+	}
+	response.ResponseOkWithMessage(ctx, "修改成功")
+}
+
+func (uc *UserController) GetUserRoles(ctx *gin.Context) {
+	userId, ok := ctx.GetQuery("user_id")
+	if !ok {
+		global.Logger.Errorf("%+v", errors.New("Missing parameter: user_id"))
+		response.ResponseHttpErrorWithInfo(ctx, "Missing parameter: user_id")
+		return
+	}
+	userRoles, err := uc.UserService.GetUserRoles(userId)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "get user role failed"))
+		response.ResponseHttpError(ctx, "获取用户角色失败 "+err.Error())
+		return
+	}
+	response.ResponseOkWithData(ctx, userRoles)
+}
+
+func (uc *UserController) UpdateUserRole(ctx *gin.Context) {
+	params := &UpdateUserRole{}
+	err := ctx.ShouldBind(params)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "update user role failed"))
+		response.ResponseHttpError(ctx, err.Error())
+		return
+	}
+	err = tools.Validate(params)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "validate parameter failed"))
+		response.ResponseHttpErrorWithInfo(ctx, err.Error())
+		return
+	}
+	err = uc.UserService.UpdateUserRole(params.ID, params.RoleIds)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "update user role failed"))
 		response.ResponseHttpError(ctx, "修改失败"+err.Error())
 		return
 	}

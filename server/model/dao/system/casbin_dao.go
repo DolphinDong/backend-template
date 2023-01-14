@@ -25,6 +25,14 @@ func (cd *CasbinDao) DeleteCasbinRuleByReq(tx *gorm.DB, req string) error {
 	return nil
 }
 
+func (cd *CasbinDao) DeleteUserRoleByUserID(tx *gorm.DB, userId string) error {
+	if tx == nil {
+		tx = cd.DB
+	}
+	tx.Table("casbin_rule").Where("ptype='g' and v0=?", userId).Delete(&model2.CasbinRule{})
+	return nil
+}
+
 func (cd *CasbinDao) AddCasbinRows(tx *gorm.DB, rule []*model2.CasbinRule) error {
 	if tx == nil {
 		tx = cd.DB

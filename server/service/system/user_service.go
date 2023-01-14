@@ -105,7 +105,7 @@ func (us *UserService) AddUser(user *model.User) (err error) {
 			return errors.WithStack(err)
 		}
 		userCasbin := &model.CasbinRule{
-			Ptype: "g",
+			Ptype: constant.CasbinTypeG,
 			V0:    user.ID,
 			V1:    constant.UserDefaultRole,
 		}
@@ -231,7 +231,7 @@ func (us *UserService) UpdateReqPermission(req string, permissions []interface{}
 	}
 	for _, systemMenu := range systemMenus {
 		allCasbinRule = append(allCasbinRule, &model.CasbinRule{
-			Ptype: "p",
+			Ptype: constant.CasbinTypeP,
 			V0:    req,
 			V1:    systemMenu.Name,
 			V2:    constant.MenuAct,
@@ -239,7 +239,7 @@ func (us *UserService) UpdateReqPermission(req string, permissions []interface{}
 	}
 	for _, permission := range queryPermissions {
 		allCasbinRule = append(allCasbinRule, &model.CasbinRule{
-			Ptype: "p",
+			Ptype: constant.CasbinTypeP,
 			V0:    req,
 			V1:    permission.Identify,
 			V2:    permission.Action,
@@ -261,4 +261,51 @@ func (us *UserService) UpdateReqPermission(req string, permissions []interface{}
 		return errors.WithStack(err)
 	}
 	return
+}
+
+func (us *UserService) GetUserRoles(userId string) (userRoleIds []string, err error) {
+	allRoles, err := system.NewRoleDao().QueryAllRoles()
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	for _, role := range allRoles {
+		// 判断这个用户是否有这个角色的权限 有的话则返回
+		if global.Enforcer.HasNamedGroupingPolicy(constant.CasbinTypeG, userId, role.RoleIdentify) {
+			userRoleIds = append(userRoleIds, fmt.Sprintf("%v", role.ID))
+		}
+	}
+	return
+}
+
+func (us *UserService) UpdateUserRole(userId string, roleIds []string) error {
+	roles, err := system.NewRoleDao().QueryRoleByIds(roleIds)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	roleCasbins := make([]*model.CasbinRule, 0, len(roles))
+	for _, role := range roles {
+		roleCasbins = append(roleCasbins, &model.CasbinRule{
+			Ptype: constant.CasbinTypeG,
+			V0:    userId,
+			V1:    role.RoleIdentify,
+		})
+	}
+	err = global.DB.Transaction(func(tx *gorm.DB) error {
+		casbinDao := system.NewCasbinDao()
+		// 删除用户之前的角色
+		err = casbinDao.DeleteUserRoleByUserID(tx, userId)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		// 添加新的角色
+		err = casbinDao.AddCasbinRows(tx, roleCasbins)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		return nil
+	})
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
 }

@@ -71,16 +71,18 @@
       <!-- slot-scope="text, record" -->
       <span slot="action" slot-scope="txt,record">
         <a v-if="$auth(menuApi + '.put')" @click="updateMenu(record)">编辑</a>
-        <a-divider type="vertical" />
-        <a-dropdown v-if="$auth(menuApi + '.delete')">
-          <a-menu slot="overlay">
-            <a-menu-item
-              v-if="$auth(menuApi + '.delete')"
-            ><a style="color: red" @click="deleteMenu(record)">删除</a></a-menu-item
-            >
-          </a-menu>
-          <a>更多<a-icon type="down" /></a>
-        </a-dropdown>
+        <template v-if="$auth(menuApi + '.delete')">
+          <a-divider type="vertical" />
+          <a-dropdown >
+            <a-menu slot="overlay">
+              <a-menu-item
+                v-if="$auth(menuApi + '.delete')"
+              ><a style="color: red" @click="deleteMenu(record)">删除</a></a-menu-item
+              >
+            </a-menu>
+            <a>更多<a-icon type="down" /></a>
+          </a-dropdown>
+        </template>
       </span>
 
     </a-table>

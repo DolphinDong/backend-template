@@ -55,3 +55,19 @@ export function updateUserPermission (data) {
     data: data
   })
 }
+
+export function getUserRole (params) {
+  return request({
+    url: APIS.userApi.userRole,
+    method: 'get',
+    params: params
+  })
+}
+
+export function updateUserRole (data) {
+  return request({
+    url: APIS.userApi.userRole,
+    method: 'put',
+    data: data
+  })
+}

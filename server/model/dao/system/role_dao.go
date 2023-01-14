@@ -73,6 +73,20 @@ func (rd *RoleDao) DeleteRolePermission(db *gorm.DB, identify string) error {
 	return nil
 }
 
+func (rd *RoleDao) QueryAllRoles() (roles []*model.Role, err error) {
+	if err = rd.Find(&roles).Error; err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return
+}
+
+func (rd *RoleDao) QueryRoleByIds(ids []string) (roles []*model.Role, err error) {
+	if err = rd.Where("id in ?", ids).Find(&roles).Error; err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return
+}
+
 func NewRoleDao() *RoleDao {
 	return &RoleDao{
 		global.DB,

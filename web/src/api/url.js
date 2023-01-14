@@ -25,7 +25,8 @@ const manageApi = {
 const userApi = {
   user: '/system/user',
   resetPwd: '/system/user/resetPwd',
-  userPermission: '/system/user/permission'
+  userPermission: '/system/user/permission',
+  userRole: '/system/user/role'
 }
 const roleApi = {
   role: '/system/role',

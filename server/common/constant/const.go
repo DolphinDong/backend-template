@@ -13,3 +13,8 @@ const (
 	TokenPeriod    = 30 // token有效时间30分钟
 	UserContextKey = "userId"
 )
+
+const (
+	CasbinTypeP ="p"
+	CasbinTypeG ="g"
+)

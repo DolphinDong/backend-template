@@ -29,6 +29,8 @@ func registerRouter(engine *gin.Engine) {
 			systemApi.PUT("/user/resetPwd", userController.ResetUserPwd)
 			systemApi.GET("/user/permission",userController.GetUserPermissions)
 			systemApi.PUT("/user/permission",userController.UpdateUserPermission)
+			systemApi.GET("/user/role",userController.GetUserRoles)
+			systemApi.PUT("/user/role",userController.UpdateUserRole)
 
 			roleController := system.NewRoleController()
 			systemApi.GET("/role", roleController.GetRoles)
