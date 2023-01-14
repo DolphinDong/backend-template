@@ -36,3 +36,8 @@ func GetUUID() (uuidStr string) {
 func GetQueryString(query string) string {
 	return fmt.Sprintf("%%%v%%", query)
 }
+
+// 获取用户的token在redis中的key
+func GetRedisTokenKey(prefix, userId, token string) string {
+	return fmt.Sprintf("%v_%v_%v", prefix, userId, token)
+}

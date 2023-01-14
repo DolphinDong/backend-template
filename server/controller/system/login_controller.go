@@ -48,7 +48,7 @@ func (lc *LoginController) Login(ctx *gin.Context) {
 			response.ResponseHttpError(ctx, "系统异常 登录失败")
 			return
 		}
-		err = redis.NewRedisDao().SetKeyWithExpiration(token, user.ID, constant.TokenPeriod*60)
+		err = redis.NewRedisDao().SetKeyWithExpiration(tools.GetRedisTokenKey(constant.TokenRedisPrefix, user.ID, token), user.ID, constant.TokenPeriod*60)
 		if err != nil {
 			global.Logger.Errorf("%+v", errors.WithMessage(err, "set token to redis failed"))
 			response.ResponseHttpError(ctx, "系统异常 登录失败")
@@ -66,8 +66,13 @@ func (lc *LoginController) Login(ctx *gin.Context) {
 
 func (lc *LoginController) Logout(ctx *gin.Context) {
 	token := ctx.Request.Header.Get(constant.TokenHeader)
+	claim, err := tools.ParseToken(token, []byte(tools.SecretKey))
+	if err != nil {
+		response.ResponseOkWithMessage(ctx, "logout success")
+		return
+	}
 	if token != "" {
-		err := lc.LoginService.Logout(token)
+		err := lc.LoginService.Logout(tools.GetRedisTokenKey(constant.TokenRedisPrefix, claim.Id, token))
 		if err != nil {
 			global.Logger.Errorf("%+v", errors.WithMessage(err, "dlete token failed"))
 			response.ResponseHttpError(ctx, "logout failed")

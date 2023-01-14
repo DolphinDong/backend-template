@@ -39,3 +39,5 @@ logs/
 _test.go
 dist
 web/node_modules
+*_test.go
+server/test

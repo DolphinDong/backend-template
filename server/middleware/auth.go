@@ -73,7 +73,7 @@ func LoginCheck() gin.HandlerFunc {
 			ctx.Set(constant.UserContextKey, claim.Issuer)
 			redisDao := redis.NewRedisDao()
 			// 查询redis中是否有这个用户的token
-			value, err := redisDao.GetKey(token)
+			value, err := redisDao.GetKey(tools.GetRedisTokenKey(constant.TokenRedisPrefix, claim.Issuer, token))
 			if err != nil {
 				global.Logger.Errorf("%+v", errors.WithMessage(err, "get token failed"))
 				response.ResponseHttpError(ctx, "get token failed")
@@ -89,7 +89,7 @@ func LoginCheck() gin.HandlerFunc {
 			}
 
 			// 设置token在redis中的时间
-			err = redisDao.SetKeyExpiration(token, constant.TokenPeriod*60)
+			err = redisDao.SetKeyExpiration(tools.GetRedisTokenKey(constant.TokenRedisPrefix, claim.Issuer, token), constant.TokenPeriod*60)
 			if err != nil {
 				global.Logger.Errorf("%+v", errors.WithMessage(err, "set token expiration failed"))
 				response.ResponseHttpError(ctx, "set token expiration failed")
