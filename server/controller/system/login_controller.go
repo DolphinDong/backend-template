@@ -69,8 +69,8 @@ func (lc *LoginController) Logout(ctx *gin.Context) {
 	if token != "" {
 		err := lc.LoginService.Logout(token)
 		if err != nil {
-			global.Logger.Errorf("%+v", errors.WithMessage(err, "dlete token failed"))
-			response.ResponseHttpError(ctx, "logout failed")
+			global.Logger.Errorf("%+v", errors.WithMessage(err, "delete token failed"))
+			//response.ResponseHttpError(ctx, "logout failed")
 			return
 		}
 	}
