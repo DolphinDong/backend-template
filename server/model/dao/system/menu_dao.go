@@ -176,7 +176,7 @@ func (md *MenuDao) UpdateMenuMeta(tx *gorm.DB, meta *model2.MenuMeta) error {
 	if tx == nil {
 		tx = md.DB
 	}
-	if err := md.Select("*").Omit("id").Where("menu_id=?", meta.MenuID).Updates(&meta).Error; err != nil {
+	if err := md.Select("*").Omit("id", "hide_children", "hidden_header_content").Where("menu_id=?", meta.MenuID).Updates(&meta).Error; err != nil {
 		return errors.WithStack(err)
 	}
 	return nil
