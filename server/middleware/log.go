@@ -14,7 +14,7 @@ func PrintRequestInfo() gin.HandlerFunc {
 
 	return func(ctx *gin.Context) {
 
-		ip := ctx.RemoteIP()
+		ip := ctx.ClientIP()
 		url := ctx.Request.URL
 		// 请求方法为post需要将请求体内的东西打印出来
 		if ctx.Request.Method == http.MethodPost {

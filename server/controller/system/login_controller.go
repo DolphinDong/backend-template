@@ -33,7 +33,7 @@ func (lc *LoginController) Login(ctx *gin.Context) {
 		response.ResponseHttpError(ctx, err.Error())
 		return
 	}
-	user, err := lc.LoginService.Login(params.Username, params.Password, ctx.RemoteIP())
+	user, err := lc.LoginService.Login(params.Username, params.Password, ctx.ClientIP())
 	if err != nil {
 		global.Logger.Errorf("%+v", errors.WithMessage(err, "login failed"))
 		response.ResponseHttpError(ctx, "系统异常 登录失败")
@@ -58,5 +58,5 @@ func (lc *LoginController) Login(ctx *gin.Context) {
 }
 
 func (lc *LoginController) Logout(ctx *gin.Context) {
-	response.ResponseOkWithMessage(ctx,"logout success")
+	response.ResponseOkWithMessage(ctx, "logout success")
 }
