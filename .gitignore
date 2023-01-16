@@ -41,3 +41,4 @@ dist
 web/node_modules
 *_test.go
 server/test
+server/upload-files

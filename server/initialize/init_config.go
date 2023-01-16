@@ -20,5 +20,8 @@ func initConfig(configPath string) {
 	if err != nil {
 		tools.CheckErr(errors.Wrap(err, "Unmarshal config error"))
 	}
+	if global.Config.UploadFilePath == "" {
+		global.Config.UploadFilePath = "./upload-files"
+	}
 	global.Logger.Infof("init config success :%v ", string(content))
 }

@@ -2,6 +2,8 @@ package router
 
 import (
 	"fmt"
+	"github.com/DolphinDong/backend-template/common/constant"
+	"github.com/DolphinDong/backend-template/common/response"
 	"github.com/DolphinDong/backend-template/global"
 	"github.com/DolphinDong/backend-template/initialize"
 	"github.com/DolphinDong/backend-template/middleware"
@@ -20,16 +22,25 @@ func init() {
 
 func Run() {
 	engine := gin.New()
+	engine.Static(constant.StaticUrl, global.Config.UploadFilePath)
+	engine.NoRoute(func(ctx *gin.Context) {
+		ctx.JSON(http.StatusNotFound, response.Response{
+			Code: http.StatusNotFound,
+			Msg:  "404 page not found",
+		})
+	})
+
+	api := engine.Group("/api")
 	// 注册中间件
-	registerMiddleware(engine)
+	registerMiddleware(api)
 	// 注册路由
-	registerRouter(engine)
+	registerRouter(api)
 	err := engine.Run(fmt.Sprintf("%v:%v", global.Config.ServerHost, global.Config.ServerPort))
 	tools.CheckErr(errors.Wrap(err, "start server error!!"))
 }
 
 // 注册中间件
-func registerMiddleware(engine *gin.Engine) {
+func registerMiddleware(engine *gin.RouterGroup) {
 
 	engine.Use(cors.New(cors.Config{
 		AllowOrigins:  []string{"*"},

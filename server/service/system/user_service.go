@@ -8,8 +8,11 @@ import (
 	"github.com/DolphinDong/backend-template/model/dao/system"
 	"github.com/DolphinDong/backend-template/model/model"
 	"github.com/DolphinDong/backend-template/tools"
+	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -308,4 +311,35 @@ func (us *UserService) UpdateUserRole(userId string, roleIds []string) error {
 		return errors.WithStack(err)
 	}
 	return nil
+}
+
+func (us *UserService) UploadUserAvatar(ctx *gin.Context, userId string) (url string, err error) {
+	uploadBaseUrl := filepath.Join(global.Config.UploadFilePath, constant.AvatarPath)
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	if _, e := os.Stat(uploadBaseUrl); e != nil {
+		_ = os.MkdirAll(uploadBaseUrl, 0755)
+	}
+	//f := strings.Split(file.Filename, ".")
+	//fileType := ""
+	//if len(f) > 1 {
+	//	fileType = f[len(f)-1]
+	//}
+	fileName := fmt.Sprintf("%v_%v.jpg", userId, tools.GenerateUUID(4))
+	filePath := filepath.Join(uploadBaseUrl, fileName)
+	err = ctx.SaveUploadedFile(file, filePath)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	requestUrl := filepath.Join(constant.StaticUrl, constant.AvatarPath, fileName)
+	err = us.UserDao.UpdateUserAvatar(userId, requestUrl)
+	if err != nil {
+		err = errors.WithStack(err)
+		return
+	}
+	return requestUrl, nil
 }

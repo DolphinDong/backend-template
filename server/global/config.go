@@ -1,12 +1,13 @@
 package global
 
 type Server struct {
-	ServerHost string            `json:"server_host"`
-	ServerPort int               `json:"server_port"`
-	Log        Log               `json:"log"`
-	Mysql      Mysql             `json:"mysql"`
-	Redis      Redis             `json:"redis"`
-	Tasks      map[string]string `json:"tasks"`
+	ServerHost     string            `json:"server_host"`
+	ServerPort     int               `json:"server_port"`
+	Log            Log               `json:"log"`
+	Mysql          Mysql             `json:"mysql"`
+	Redis          Redis             `json:"redis"`
+	Tasks          map[string]string `json:"tasks"`
+	UploadFilePath string            `json:"upload_file_path"`
 }
 
 // Mysql配置

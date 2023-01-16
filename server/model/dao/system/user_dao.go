@@ -111,6 +111,15 @@ func (ud *UserDao) DeleteUserPermissionById(db *gorm.DB, id string) (err error) 
 	return
 }
 
+func (ud *UserDao) UpdateUserAvatar(id string, avatar string) error {
+	if err := ud.Model(&model.User{}).Where("id=?", id).Updates(map[string]interface{}{
+		"avatar": avatar,
+	}).Error; err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
+}
+
 func NewUserDao() *UserDao {
 	return &UserDao{
 		global.DB,

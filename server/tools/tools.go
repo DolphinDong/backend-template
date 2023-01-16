@@ -6,7 +6,9 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"math/rand"
 	"strings"
+	"time"
 )
 
 // 校验数据
@@ -40,4 +42,14 @@ func GetQueryString(query string) string {
 // 获取用户的token在redis中的key
 func GetRedisTokenKey(prefix, userId, token string) string {
 	return fmt.Sprintf("%v_%v_%v", prefix, userId, token)
+}
+
+func GenerateUUID(l int) string {
+	s := "0123456789ABCDEFGHIJKLMNOPQRSTUVXWYZabcdefghijklmnopqrstuvxwyz"
+	rand.Seed(time.Now().UnixNano())
+	buffer := make([]byte, l)
+	for i := 0; i < l; i++ {
+		buffer[i] = s[rand.Intn(len(s))]
+	}
+	return string(buffer)
 }

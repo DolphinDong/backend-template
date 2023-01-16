@@ -245,3 +245,22 @@ func (uc *UserController) UpdateUserRole(ctx *gin.Context) {
 	}
 	response.ResponseOkWithMessage(ctx, "修改成功")
 }
+
+func (uc *UserController) UploadUserAvatar(ctx *gin.Context) {
+	id, exists := ctx.Get(constant.UserContextKey)
+	userId := id.(string)
+	if !exists || id == "" {
+		global.Logger.Errorf("%+v", errors.New("validate user"))
+		response.ResponseHttpError(ctx, "validate user")
+		return
+	}
+	url, err := uc.UserService.UploadUserAvatar(ctx, userId)
+	if err != nil {
+		global.Logger.Errorf("%+v", errors.WithMessage(err, "update user avatar failed"))
+		response.ResponseHttpError(ctx, "修改失败"+err.Error())
+		return
+	}
+	response.ResponseOkWithData(ctx, gin.H{
+		"url": url,
+	})
+}
