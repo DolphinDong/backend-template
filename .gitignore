@@ -42,3 +42,4 @@ dist
 server/test
 server/upload-files
 /web/node_modules/
+server/config-dev.json
