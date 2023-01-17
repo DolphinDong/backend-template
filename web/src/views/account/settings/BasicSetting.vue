@@ -48,11 +48,14 @@
 <script>
 import AvatarModal from './AvatarModal'
 import { baseMixin } from '@/store/app-mixin'
-
+import { mapGetters } from 'vuex'
 export default {
   mixins: [baseMixin],
   components: {
     AvatarModal
+  },
+  computed: {
+    ...mapGetters(['userInfo'])
   },
   data () {
     return {
@@ -78,6 +81,11 @@ export default {
   methods: {
     setavatar (url) {
       this.option.img = url
+    }
+  },
+  mounted () {
+    if (this.userInfo.avatar) {
+      this.option.img = this.userInfo.avatar
     }
   }
 }

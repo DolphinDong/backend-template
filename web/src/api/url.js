@@ -26,7 +26,8 @@ const userApi = {
   user: '/system/user',
   resetPwd: '/system/user/resetPwd',
   userPermission: '/system/user/permission',
-  userRole: '/system/user/role'
+  userRole: '/system/user/role',
+  uploadUserAvatar: '/system/user/avatar'
 }
 const roleApi = {
   role: '/system/role',

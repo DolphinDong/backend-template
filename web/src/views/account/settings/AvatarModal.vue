@@ -55,6 +55,7 @@
 
 </template>
 <script>
+import { updateUserAvatar } from '@/api/user'
 export default {
   data () {
     return {
@@ -118,26 +119,26 @@ export default {
       const formData = new FormData()
       // 输出
       if (type === 'blob') {
-        this.$refs.cropper.getCropBlob((data) => {
+        this.$refs.cropper.getCropBlob(async (data) => {
           const img = window.URL.createObjectURL(data)
           this.model = true
           this.modelSrc = img
+          console.log(this.fileName)
           formData.append('file', data, this.fileName)
-          this.$http.post('https://www.mocky.io/v2/5cc8019d300000980a055e76', formData, { contentType: false, processData: false, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
-            .then((response) => {
-              console.log('upload response:', response)
-              // var res = response.data
-              // if (response.status === 'done') {
-              //   _this.imgFile = ''
-              //   _this.headImg = res.realPathList[0] // 完整路径
-              //   _this.uploadImgRelaPath = res.relaPathList[0] // 非完整路径
-              //   _this.$message.success('上传成功')
-              //   this.visible = false
-              // }
-              _this.$message.success('上传成功')
-              _this.$emit('ok', response.url)
-              _this.visible = false
-            })
+          const res = await updateUserAvatar(formData)
+          console.log('upload response:', res)
+          const response = res.data
+    // var res = response.data
+        // if (response.code === 20001) {
+        //   _this.imgFile = ''
+        //   _this.headImg = res.realPathList[0] // 完整路径
+        //   _this.uploadImgRelaPath = res.relaPathList[0] // 非完整路径
+        //   _this.$message.success('上传成功')
+        //   this.visible = false
+        // }
+        _this.$message.success('上传成功')
+        _this.$emit('ok', response.url)
+        _this.visible = false
         })
       } else {
         this.$refs.cropper.getCropData((data) => {

@@ -130,6 +130,11 @@ const vueConfig = {
         target: 'http://127.0.0.1:8081',
         ws: false,
         changeOrigin: true
+      },
+      '^/files': {
+        target: 'http://127.0.0.1:8081',
+        ws: false,
+        changeOrigin: true
       }
     }
   },

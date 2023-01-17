@@ -71,3 +71,13 @@ export function updateUserRole (data) {
     data: data
   })
 }
+
+export function updateUserAvatar (formData) {
+  return request({
+    url: APIS.userApi.uploadUserAvatar,
+    data: formData,
+    method: 'post',
+    contentType: false,
+    processData: false,
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+}
