@@ -31,7 +31,7 @@
     <br>
     <a-row>
       <a-col :lg="2" :md="2">
-        <a-upload name="file" :beforeUpload="beforeUpload" :showUploadList="false">
+        <a-upload name="file" :beforeUpload="beforeUpload" @change="handleChange" :showUploadList="false">
           <a-button icon="upload">选择图片</a-button>
         </a-upload>
       </a-col>
@@ -119,11 +119,11 @@ export default {
       const formData = new FormData()
       // 输出
       if (type === 'blob') {
+        console.log(this.$refs.cropper)
         this.$refs.cropper.getCropBlob(async (data) => {
           const img = window.URL.createObjectURL(data)
           this.model = true
           this.modelSrc = img
-          console.log(this.fileName)
           formData.append('file', data, this.fileName)
           const res = await updateUserAvatar(formData)
           console.log('upload response:', res)
@@ -160,6 +160,9 @@ export default {
 
     realTime (data) {
       this.previews = data
+    },
+    handleChange (info) {
+      this.fileName = info.file.name
     }
   }
 }
