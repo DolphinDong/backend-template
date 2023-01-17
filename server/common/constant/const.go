@@ -23,6 +23,7 @@ const (
 )
 
 const (
-	StaticUrl  = "/files"  // 静态文件路径
-	AvatarPath = "avatars" // 头像地址 相对于 global.config.UploadFilePath
+	StaticUrl         = "/files"  // 静态文件请求路径
+	AvatarPath        = "avatars" // 头像地址 相对于 global.config.UploadFilePath
+	DefaultUserAvatar = "/avatar.png"
 )

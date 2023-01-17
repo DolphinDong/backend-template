@@ -102,6 +102,7 @@ func (us *UserService) GetUsers(query *structs.TableQuery, gender, status string
 func (us *UserService) AddUser(user *model.User) (err error) {
 	user.ID = tools.GetUUID()
 	user.Password = tools.GetEncryptedPassword(tools.MD5Str(constant.UserDefaultPassword))
+	user.Avatar = constant.DefaultUserAvatar
 	err = global.DB.Transaction(func(tx *gorm.DB) error {
 		err = us.UserDao.AddUser(tx, user)
 		if err != nil {
@@ -323,12 +324,12 @@ func (us *UserService) UploadUserAvatar(ctx *gin.Context, userId string) (url st
 	if _, e := os.Stat(uploadBaseUrl); e != nil {
 		_ = os.MkdirAll(uploadBaseUrl, 0755)
 	}
-	//f := strings.Split(file.Filename, ".")
-	//fileType := ""
-	//if len(f) > 1 {
-	//	fileType = f[len(f)-1]
-	//}
-	fileName := fmt.Sprintf("%v_%v.jpg", userId, tools.GenerateUUID(4))
+	f := strings.Split(file.Filename, ".")
+	fileType := "jpg"
+	if len(f) > 1 {
+		fileType = f[len(f)-1]
+	}
+	fileName := fmt.Sprintf("%v_%v.%v", userId, tools.GenerateUUID(6), fileType)
 	filePath := filepath.Join(uploadBaseUrl, fileName)
 	err = ctx.SaveUploadedFile(file, filePath)
 	if err != nil {
