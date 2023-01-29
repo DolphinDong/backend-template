@@ -31,7 +31,7 @@
     <template v-slot:headerContentRender>
       <div>
         <a-tooltip title="刷新页面">
-          <a-icon type="reload" style="font-size: 18px;cursor: pointer;" @click="() => { $message.info('只是一个DEMO') }" />
+          <a-icon type="reload" style="font-size: 18px;cursor: pointer;" @click="refreshPage" />
         </a-tooltip>
       </div>
     </template>
@@ -48,7 +48,7 @@
     <template v-slot:footerRender>
       <global-footer />
     </template>
-    <router-view />
+    <router-view :key="activeDate" />
   </pro-layout>
 </template>
 
@@ -73,6 +73,7 @@ export default {
   },
   data () {
     return {
+      activeDate: 0,
       // preview.pro.antdv.com only use.
       isProPreviewSite: process.env.VUE_APP_PREVIEW === 'true' && process.env.NODE_ENV !== 'development',
       // end
@@ -141,6 +142,9 @@ export default {
     }
   },
   methods: {
+    refreshPage () {
+      this.activeDate = Date.parse(new Date())
+    },
     i18nRender,
     handleMediaQuery (val) {
       this.query = val
