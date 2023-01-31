@@ -158,7 +158,7 @@ const columns = [
   {
     title: '操作',
     scopedSlots: { customRender: 'action' },
-    width: 200
+    width: 150
   }
 ]
 
